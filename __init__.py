@@ -11,29 +11,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import bpy      # type: ignore
 
-# from . operators import TestOP
-from . panels import MainPanel
+from . import operators
+from . import panels
 
+verbose = True
 
 bl_info = {
-    "name" : "Action Recorder",
-    "author" : "Martin Hiner (xhiner00)",
-    "description" : "Record, browse and edit your actions.",
-    "blender" : (2, 80, 0),
-    "version" : (0, 0, 1),
-    "location" : "",
-    "warning" : "WIP",
-    "category" : "User"
+    "name": "Action Recorder",
+    "author": "Martin Hiner (xhiner00)",
+    "description": "Record, browse and edit your actions.",
+    "blender": (2, 80, 0),
+    "version": (0, 0, 1),
+    "location": "",
+    "warning": "WIP",
+    "category": "User"
 }
 
-classes = [
-    MainPanel
-    ]
+
+def register():
+    operators.register()
+    panels.register()
 
 
-register, unregister = bpy.utils.register_classes_factory(classes)
+def unregister():
+    operators.unregister()
+    panels.unregister()
 
 
 # run script directly from blender text editor
