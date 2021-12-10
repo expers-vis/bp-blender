@@ -28,10 +28,10 @@ from .items import (
 
 
 classes = [
-    RECORDER_PT_main_panel,
-    RECORDER_UL_item_list,
     LayerListItem,
     GPenListItem,
+    RECORDER_PT_main_panel,
+    RECORDER_UL_item_list,
 ]
 
 
@@ -51,8 +51,24 @@ def register():
 
 
 def unregister():
+    # scene_props = [
+    #     'observed_gpens',
+    #     'observed_gpens_index'
+    # ]
+
+    # while len(scene_props) > 0:
+    #     try:
+    #         prop_name = scene_props.pop()
+    #         del getattr(Scene, prop_name)
+    #     except (RuntimeError, ValueError):
+    #         pass
     del Scene.observed_gpens
     del Scene.observed_gpens_index
 
-    for cls in classes:
-        bpy.utils.unregister_class(cls)
+    del_list = classes.copy()
+    while len(del_list) > 0:
+        try:
+            cls = del_list.pop()
+            bpy.utils.unregister_class(cls)
+        except RuntimeError:
+            pass

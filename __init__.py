@@ -30,8 +30,13 @@ bl_info = {
 
 
 def register():
-    operators.register()
-    ui.register()
+    try:
+        operators.register()
+        ui.register()
+    except Exception as e:
+        print("Exception raised during registration, cleaning up...")
+        unregister()
+        raise e
 
 
 def unregister():

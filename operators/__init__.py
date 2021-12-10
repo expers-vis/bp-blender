@@ -36,5 +36,10 @@ def register():
 
 
 def unregister():
-    for cls in classes:
-        bpy.utils.unregister_class(cls)
+    del_list = classes.copy()
+    while len(del_list) > 0:
+        try:
+            cls = del_list.pop()
+            bpy.utils.unregister_class(cls)
+        except RuntimeError:
+            pass
