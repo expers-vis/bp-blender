@@ -51,19 +51,17 @@ def register():
 
 
 def unregister():
-    # scene_props = [
-    #     'observed_gpens',
-    #     'observed_gpens_index'
-    # ]
+    scene_props = [
+        'observed_gpens',
+        'observed_gpens_index'
+    ]
 
-    # while len(scene_props) > 0:
-    #     try:
-    #         prop_name = scene_props.pop()
-    #         del getattr(Scene, prop_name)
-    #     except (RuntimeError, ValueError):
-    #         pass
-    del Scene.observed_gpens
-    del Scene.observed_gpens_index
+    while len(scene_props) > 0:
+        try:
+            prop_name = scene_props.pop()
+            eval(f'del Scene.{ prop_name }')
+        except (RuntimeError, ValueError):
+            pass
 
     del_list = classes.copy()
     while len(del_list) > 0:
