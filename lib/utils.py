@@ -12,33 +12,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-from . import operators
-from . import ui
-
-verbose = True
-
-bl_info = {
-    "name": "Action Recorder",
-    "author": "Martin Hiner (xhiner00)",
-    "description": "Record, browse and edit your actions.",
-    "blender": (2, 80, 0),
-    "version": (0, 0, 1),
-    "location": "3D View > UI > Recorder",
-    "warning": "WIP",
-    "category": "User"
-}
+import time
 
 
-def register():
-    operators.register()
-    ui.register()
+def get_timestamp():
+    """Get string of current time in HH:MM:SS format."""
 
-
-def unregister():
-    operators.unregister()
-    ui.unregister()
-
-
-# run script directly from blender text editor
-if __name__ == '__main__':
-    register()
+    t = time.localtime()
+    return time.strftime('%H:%M:%S', t)

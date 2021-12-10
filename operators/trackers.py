@@ -1,3 +1,17 @@
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+
 import bpy      # type: ignore
 from typing import Union
 
@@ -9,8 +23,26 @@ from ..lib import (
 )
 
 
+class Track():
+    """Base class for tracking operators."""
+
+    def add_tracker(self, context, obj):
+        """Add object to tracked list."""
+
+        add_tracker(obj)
+        # TODO: add trackers based on class
+        context.scene.observed_gpens.add()
+
+    def remove_tracker(self, context, obj):
+        """Remove object from tracking list"""
+
+        remove_tracker(obj)
+        # TODO: add trackers based on class
+        context.scene.observed_gpens.remove()
+
+
 # -- select tracking -- #
-class TrackActiveABC():
+class TrackActiveABC(Track):
     """Parent class for tracking selected Grease Pencils."""
 
     @classmethod
@@ -61,7 +93,7 @@ class RECORDER_OT_start_track_active(TrackActiveABC, bpy.types.Operator):
                     '{} is already being tracked!'.format(gpen.name)
                 )
             else:
-                add_tracker(gpen)
+                self.add_tracker(context, gpen)
                 print("Tracking " + str(gpen))
 
         return {'FINISHED'}
@@ -93,17 +125,17 @@ class RECORDER_OT_stop_track_active(TrackActiveABC, bpy.types.Operator):
 
             # TODO: remove check on implemetation
             if is_tracked(gpen):
-                remove_tracker(gpen)
+                self.remove_tracker(context, gpen)
                 print("Stopped tracking " + str(gpen))
 
         return {'FINISHED'}
 
 
 # -- by name tracking -- #
-class TrackNameABC():
+class TrackNameABC(Track):
     """Parent class for tracking Grease Pencils by name."""
 
-    def get_gpen(self, name: str) -> Union[ bpy.types.GreasePencil, None]:
+    def get_gpen(self, name: str) -> Union[bpy.types.GreasePencil, None]:
         """Get Grease Pencil by name.
 
             Returns:
@@ -154,7 +186,7 @@ class RECORDER_OT_start_track_name(TrackNameABC, bpy.types.Operator):
                 '{} is already being tracked!'.format(gpen.name)
             )
         else:
-            add_tracker(gpen)
+            self.add_tracker(context, gpen)
             print("Tracking " + str(gpen))
 
         return {'FINISHED'}
@@ -200,7 +232,7 @@ class RECORDER_OT_stop_track_name(TrackNameABC, bpy.types.Operator):
 
         # TODO: remove check on implemetation
         if is_tracked(gpen):
-            remove_tracker(gpen)
+            self.remove_tracker(context, gpen)
             print("Stopped tracking " + str(gpen))
 
         return {'FINISHED'}

@@ -12,38 +12,40 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-import bpy      # type: ignore
-from .utils import get_timestamp
+from ..lib import get_timestamp
 
 
-class FrameObserver(object):
-    """Observer class used to observe changes in GPencilFrame object."""
+class Observer():
+    """Observer class used to observe changes in object.
 
-    def __init__(self, observee: bpy.types.GPencilFrame) -> None:
-        self.frame = observee
-        self.strokes = observee.strokes
-        self.last_count = self.strokes.__len__()
+        Change si detected when number of elements in selected
+        attribute changes.
+        Call method notify to evaluate change.
+        Methods on_add and on_remove are called for their respective change.
+    """
 
-    def get_frame(self) -> bpy.types.GPencilFrame:
-        return self.frame
+    def __init__(self, observee, observed_attr: str) -> None:
+        self.observee = observee
+        self.attribute = getattr(observee, observed_attr)
+        self.last_count = self.attribute.__len__()
 
-    def get_frame_id(self) -> int:
-        return id(self.frame)
+        # TODO: remove
+        self.str_attr = observed_attr
 
-    def get_strokes(self) -> bpy.types.bpy_prop_collection:
-        return self.strokes
+    def get_observee(self):
+        return self.observee
 
-    def get_stroke_count(self) -> int:
-        return self.strokes.__len__()
+    def get_attribute_count(self) -> int:
+        return self.attribute.__len__()
 
     def on_add(self) -> None:
-        print(get_timestamp() + ": stroke added.")
+        print(f"{ get_timestamp() }: { self.str_attr } added.")
 
     def on_remove(self) -> None:
-        print(get_timestamp() + ": stroke removed.")
+        print(f"{ get_timestamp() }: { self.str_attr } added.")
 
     def notify(self) -> None:
-        new_count = self.get_stroke_count()
+        new_count = self.get_attribute_count()
 
         if(self.last_count < new_count):
             self.on_add()

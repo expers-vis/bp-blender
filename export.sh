@@ -1,5 +1,6 @@
+addon_name="recorder"
 addon_dir="blender_addon"
-zip_file="${addon_dir}.zip"
+zip_file="${addon_name}_addon.zip"
 timestamp=$(date +"%Y-%m-%d %T")
 
 cd ..

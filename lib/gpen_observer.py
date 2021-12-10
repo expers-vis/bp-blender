@@ -12,38 +12,38 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-import bpy      # type: ignore
-from .utils import get_timestamp
+from bpy.types import (     # type: ignore
+    GreasePencil
+)
+from ..lib import get_timestamp
 
 
-class FrameObserver(object):
-    """Observer class used to observe changes in GPencilFrame object."""
+class GPenObserver():
+    """Observer class used to observe changes in GreasePencil object.
 
-    def __init__(self, observee: bpy.types.GPencilFrame) -> None:
-        self.frame = observee
-        self.strokes = observee.strokes
-        self.last_count = self.strokes.__len__()
+        This class also doubles as PropertyGroup object used for displaying
+        items in UiList.
+    """
 
-    def get_frame(self) -> bpy.types.GPencilFrame:
-        return self.frame
+    def __init__(self, observee: GreasePencil) -> None:
+        self.gpen = observee
+        self.layers = observee.layers
+        self.last_count = self.layers.__len__()
 
-    def get_frame_id(self) -> int:
-        return id(self.frame)
+    def get_gpen(self) -> GreasePencil:
+        return self.gpen
 
-    def get_strokes(self) -> bpy.types.bpy_prop_collection:
-        return self.strokes
-
-    def get_stroke_count(self) -> int:
-        return self.strokes.__len__()
+    def get_layer_count(self) -> int:
+        return self.layers.__len__()
 
     def on_add(self) -> None:
-        print(get_timestamp() + ": stroke added.")
+        print(get_timestamp() + ": layer added.")
 
     def on_remove(self) -> None:
-        print(get_timestamp() + ": stroke removed.")
+        print(get_timestamp() + ": layer removed.")
 
     def notify(self) -> None:
-        new_count = self.get_stroke_count()
+        new_count = self.get_layer_count()
 
         if(self.last_count < new_count):
             self.on_add()
