@@ -14,16 +14,13 @@
 
 import bpy                  # type: ignore
 from bpy.types import (     # type: ignore
-    Operator,
-    GreasePencil
+    Operator
 )
-from typing import Union
 
 from ..lib import (
     is_gpen_tracked,
     add_gpen_tracker,
     remove_gpen_tracker,
-    tracked_gpen_len,
 )
 
 
@@ -33,18 +30,12 @@ class Track():
     def add_tracker(self, context, gpen):
         """Add gpen to tracked list."""
 
-        item = context.scene.observed_gpens.add()
-        item.name = gpen.name
-        item.gpen = gpen
-        item.layers = gpen.layers
-
         add_gpen_tracker(gpen)
 
-    def remove_tracker(self, context, gpen):
+    def remove_tracker(self, context):
         """Remove gpen from tracking list"""
 
-        index = remove_gpen_tracker(gpen)
-        context.scene.observed_gpens.remove(index)
+        remove_gpen_tracker()
 
 
 # -- select tracking -- #
@@ -112,15 +103,6 @@ class RECORDER_OT_stop_track_active(TrackActiveABC, Operator):
     bl_label = "Tracker Stop Operartor"
     bl_description = "Stop tracking of selected Grease Pencil strokes."
 
-    @classmethod
-    def poll(cls, context) -> bool:
-        """Check if operator can be executed."""
-
-        return (
-            TrackActiveABC.poll(context)
-            and tracked_gpen_len() > 0
-        )
-
     def execute(self, context) -> set:
         """Execute the operator."""
 
@@ -131,118 +113,7 @@ class RECORDER_OT_stop_track_active(TrackActiveABC, Operator):
 
             # TODO: remove check on implemetation
             if is_gpen_tracked(gpen):
-                self.remove_tracker(context, gpen)
+                self.remove_tracker(context)
                 print("Stopped tracking " + str(gpen))
 
         return {'FINISHED'}
-
-
-# -- by name tracking -- #
-class TrackNameABC(Track):
-    """Parent class for tracking Grease Pencils by name."""
-
-    def get_gpen(self, name: str) -> Union[GreasePencil, None]:
-        """Get Grease Pencil by name.
-
-            Returns:
-                GreasePencil: if found
-                None: if not found
-        """
-
-        gpen = None
-
-        for obj in bpy.context.editable_objects:
-            # take into account both object and GPen names
-            name_match = (obj.name == name or obj.data.name == name)
-            if name_match and (obj.type == 'GPENCIL'):
-                gpen = obj.data
-                break
-
-        return gpen
-
-
-class RECORDER_OT_start_track_name(TrackNameABC, Operator):
-    """Start tracking of Grease pencil by name."""
-
-    bl_idname = "action_recorder.start_track_name"
-    bl_label = "Select Grease Pencil you would like to track"
-    bl_description = "Start tracking of Grease Pencil by name."
-
-    input_name: bpy.props.StringProperty(
-        name='Grease Pencil name: ',        # noqa: F722
-        default=''                          # noqa: F722
-    )
-
-    def execute(self, context) -> set:
-        """Execute the operator."""
-
-        gpen_name = self.input_name
-        gpen = self.get_gpen(gpen_name)
-
-        if not gpen:
-            self.report(
-                {'WARNING'},
-                'Grease Pencil \"{}\" was not found!'.format(gpen_name)
-            )
-            return {'CANCELLED'}
-
-        if is_gpen_tracked(gpen):
-            self.report(
-                {'INFO'},
-                '{} is already being tracked!'.format(gpen.name)
-            )
-        else:
-            self.add_tracker(context, gpen)
-            print("Tracking " + str(gpen))
-
-        return {'FINISHED'}
-
-    def invoke(self, context, event):
-        # show input pop-up
-        return context.window_manager.invoke_props_dialog(self)
-
-
-class RECORDER_OT_stop_track_name(TrackNameABC, Operator):
-    """Stop tracking of Grease pencil by name."""
-
-    bl_idname = "action_recorder.stop_track_name"
-    bl_label = "Select Grease Pencil you would like to stop tracking"
-    bl_description = "Stop tracking of Grease Pencil by name."
-
-    input_name: bpy.props.StringProperty(
-        name='Grease Pencil name: ',        # noqa: F722
-        default=''                          # noqa: F722
-    )
-
-    @classmethod
-    def poll(cls, context) -> bool:
-        """Check if operator can be executed."""
-
-        return (
-            context.area.type == "VIEW_3D"
-            and tracked_gpen_len() > 0
-        )
-
-    def execute(self, context) -> set:
-        """Execute the operator."""
-
-        gpen_name = self.input_name
-        gpen = self.get_gpen(gpen_name)
-
-        if not gpen:
-            self.report(
-                {'WARNING'},
-                'Grease Pencil \"{}\" was not found!'.format(gpen_name)
-            )
-            return {'CANCELLED'}
-
-        # TODO: remove check on implemetation
-        if is_gpen_tracked(gpen):
-            self.remove_tracker(context, gpen)
-            print("Stopped tracking " + str(gpen))
-
-        return {'FINISHED'}
-
-    def invoke(self, context, event):
-        # show input pop-up
-        return context.window_manager.invoke_props_dialog(self)

@@ -28,40 +28,20 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
-        layout.label(text="Tracked Grease Pencils")
-        list_row = layout.row()
-        list_row.template_list(
-            "RECORDER_UL_item_list",
-            "gpen_list",
-            scene,
-            "observed_gpens",
-            scene,
-            "observed_gpens_index"
-        )
+        if not scene.is_observing:
+            # no gpen selected for obseervation
 
-        list_control_row = layout.row()
-        list_control_row.operator(
-            'action_recorder.list_remove_selected',
-            text='Remove'
-        )
+            layout.label(text='Control trackers')
+            layout.operator(
+                'action_recorder.start_track_active',
+                text='Track selected GPencil'
+            )
+        else:
+            # gpen has been selected
 
-        layout.label(text='Control trackers')
-        layout.operator(
-            'action_recorder.start_track_active',
-            text='Track selected GPencils'
-        )
+            layout.label(text=f'Tracking { scene.observed_gpen.name }.')
 
-        layout.operator(
-            'action_recorder.start_track_name',
-            text='Track GPencil by name'
-        )
-
-        layout.operator(
-            'action_recorder.stop_track_active',
-            text='Stop tracking selected GPencils'
-        )
-
-        layout.operator(
-            'action_recorder.stop_track_name',
-            text='Stop tracking GPencil by name'
-        )
+            layout.operator(
+                'action_recorder.stop_track_active',
+                text='Stop tracking'
+            )

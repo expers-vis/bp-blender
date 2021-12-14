@@ -16,21 +16,13 @@ import bpy      # type: ignore
 
 from .trackers import (
     RECORDER_OT_start_track_active,
-    RECORDER_OT_stop_track_active,
-    RECORDER_OT_start_track_name,
-    RECORDER_OT_stop_track_name
+    RECORDER_OT_stop_track_active
 )
 
-from .list_control import (
-    RECORDER_OT_list_remove
-)
 
 classes = [
     RECORDER_OT_start_track_active,
     RECORDER_OT_stop_track_active,
-    RECORDER_OT_start_track_name,
-    RECORDER_OT_stop_track_name,
-    RECORDER_OT_list_remove,
 ]
 
 

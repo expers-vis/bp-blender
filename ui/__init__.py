@@ -13,25 +13,20 @@
 
 
 import bpy                      # type: ignore
-from bpy.types import Scene     # type: ignore
+from bpy.types import (         # type: ignore
+    Scene,
+    GreasePencil
+)
 from bpy.props import (         # type: ignore
-    CollectionProperty,
-    IntProperty
+    PointerProperty,
+    BoolProperty
 )
 
 from .main_panel import RECORDER_PT_main_panel
-from .item_list import RECORDER_UL_item_list
-from .items import (
-    GPenListItem,
-    LayerListItem
-)
 
 
 classes = [
-    LayerListItem,
-    GPenListItem,
     RECORDER_PT_main_panel,
-    RECORDER_UL_item_list,
 ]
 
 
@@ -40,29 +35,30 @@ def register():
         print(cls)
         bpy.utils.register_class(cls)
 
-    Scene.observed_gpens = CollectionProperty(
-        name='observed_gpens',
-        type=GPenListItem,
+    Scene.observed_gpen = PointerProperty(
+        name='observed_gpen',
+        type=GreasePencil,
         options={'HIDDEN'}
+
     )
-    Scene.observed_gpens_index = IntProperty(
-        name='observed_gpens_index',
-        default=0,
+    Scene.is_observing = BoolProperty(
+        name='is_observing',
+        default=False,
         options={'HIDDEN'}
     )
 
 
 def unregister():
     scene_props = [
-        'observed_gpens',
-        'observed_gpens_index'
+        'observed_gpen',
+        'is_observing'
     ]
 
     while len(scene_props) > 0:
         try:
             prop_name = scene_props.pop()
             exec(f'del Scene.{ prop_name }')
-        except (RuntimeError, ValueError):
+        except AttributeError:
             pass
 
     del_list = classes.copy()

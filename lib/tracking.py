@@ -12,59 +12,62 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-import bpy      # type: ignore
+import bpy                              # type: ignore
+from bpy.types import (                 # type: ignore
+    GreasePencil,
+    GPencilFrame
+)
+from bpy.props import IntProperty       # type: ignore
 
 from .frame_observer import FrameObserver
 
 
-tracked_gpens = list()        # list of ids of tracked objects
-
-
-def tracked_gpen_len() -> int:
-    """Get number of tracked Grease Pencils."""
-
-    return len(tracked_gpens)
-
-
-def is_gpen_tracked(obj: object) -> bool:
+def is_gpen_tracked(gpen: GreasePencil) -> bool:
     """Determine if Grease Pencil is tracked."""
 
-    return obj in tracked_gpens
+    scene = bpy.context.scene
+
+    return id(gpen) == id(scene.observed_gpen)
 
 
-def add_gpen_tracker(obj: object) -> int:
-    """Add Grease Pencil on the list of tracked objects.
+def add_gpen_tracker(gpen: GreasePencil) -> bool:
+    """Start tracking Grease Pencil.
 
         Returns:
             int: Object ID if objects is added, 0 if object is already present
     """
 
-    if is_gpen_tracked(obj):
-        return 0
+    if is_gpen_tracked(gpen):
+        return False
 
-    tracked_gpens.append(obj)
-    return id(obj)
+    scene = bpy.context.scene
+
+    scene.observed_gpen = gpen
+    scene.is_observing = True
+
+    return True
 
 
-def remove_gpen_tracker(obj: object) -> int:
-    """Remove object from the list of tracked objects.
+# TODO
+def remove_gpen_tracker() -> None:
+    """Stop tracking Grease Pencil.
 
         Returns:
-            int: index of Grease Pencil on the list
+            data: TODO: return data from tracking
     """
 
-    if obj in tracked_gpens:
-        index = tracked_gpens.index(obj)
-        tracked_gpens.remove(obj)
-        return index
+    scene = bpy.context.scene
+
+    scene.observed_gpen = None
+    scene.is_observing = False
 
 
-def observe_frame(frame: bpy.types.GPencilFrame) -> FrameObserver:
+def observe_frame(frame: GPencilFrame) -> FrameObserver:
     """Put observer onto the frame."""
 
     observer = FrameObserver(frame)
 
-    bpy.types.GPencilFrame.stroke_count = bpy.props.IntProperty(
+    GPencilFrame.stroke_count = IntProperty(
         name='stroke_count_' + str(id(frame)),
         update=observer.notify(),
         get=observer.get_stroke_count()
