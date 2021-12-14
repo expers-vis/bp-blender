@@ -29,13 +29,20 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
         scene = context.scene
 
         layout.label(text="Tracked Grease Pencils")
-        layout.template_list(
+        list_row = layout.row()
+        list_row.template_list(
             "RECORDER_UL_item_list",
             "gpen_list",
             scene,
             "observed_gpens",
             scene,
             "observed_gpens_index"
+        )
+
+        list_control_row = layout.row()
+        list_control_row.operator(
+            'action_recorder.list_remove_selected',
+            text='Remove'
         )
 
         layout.label(text='Control trackers')

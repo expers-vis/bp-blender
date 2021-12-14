@@ -16,10 +16,10 @@ from .utils import get_timestamp
 from .gpen_observer import GPenObserver
 from .frame_observer import FrameObserver
 from .tracking import (
-    tracked_len,
-    is_tracked,
-    add_tracker,
-    remove_tracker,
+    tracked_gpen_len,
+    is_gpen_tracked,
+    add_gpen_tracker,
+    remove_gpen_tracker,
     observe_frame
 )
 
@@ -29,9 +29,9 @@ __all__ = [
     'get_timestamp',
     'GPenObserver',
     'FrameObserver',
-    'tracked_len',
-    'is_tracked',
-    'add_tracker',
-    'remove_tracker',
+    'tracked_gpen_len',
+    'is_gpen_tracked',
+    'add_gpen_tracker',
+    'remove_gpen_tracker',
     'observe_frame',
 ]

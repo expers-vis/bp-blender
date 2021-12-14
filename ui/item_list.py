@@ -22,7 +22,7 @@ class RECORDER_UL_item_list(UIList):
 
         # data == scene
         # We could write some code to decide which icon to use here...
-        custom_icon = 'OBJECT_DATAMODE'
+        default_icon = 'OBJECT_DATAMODE'
         gpens = data.observed_gpens
 
         if len(gpens) == 0:
@@ -30,9 +30,11 @@ class RECORDER_UL_item_list(UIList):
 
         # Make sure your code supports all 3 layout types
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
-            for gpen in gpens:
-                layout.prop(data=gpen, text=gpen.name, icon_value=icon)
+            layout.label(
+                text=item.name,
+                icon=default_icon
+            )
 
         elif self.layout_type in {'GRID'}:
             layout.alignment = 'CENTER'
-            layout.label(text="", icon=custom_icon)
+            layout.label(text="", icon=default_icon)

@@ -42,11 +42,13 @@ def register():
 
     Scene.observed_gpens = CollectionProperty(
         name='observed_gpens',
-        type=GPenListItem
+        type=GPenListItem,
+        options={'HIDDEN'}
     )
     Scene.observed_gpens_index = IntProperty(
         name='observed_gpens_index',
-        default=0
+        default=0,
+        options={'HIDDEN'}
     )
 
 
@@ -59,7 +61,7 @@ def unregister():
     while len(scene_props) > 0:
         try:
             prop_name = scene_props.pop()
-            eval(f'del Scene.{ prop_name }')
+            exec(f'del Scene.{ prop_name }')
         except (RuntimeError, ValueError):
             pass
 

@@ -12,33 +12,39 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-import bpy      # type: ignore
+import bpy                  # type: ignore
+from bpy.types import (     # type: ignore
+    Operator,
+    GreasePencil
+)
 from typing import Union
 
 from ..lib import (
-    is_tracked,
-    add_tracker,
-    remove_tracker,
-    tracked_len
+    is_gpen_tracked,
+    add_gpen_tracker,
+    remove_gpen_tracker,
+    tracked_gpen_len,
 )
 
 
 class Track():
     """Base class for tracking operators."""
 
-    def add_tracker(self, context, obj):
-        """Add object to tracked list."""
+    def add_tracker(self, context, gpen):
+        """Add gpen to tracked list."""
 
-        add_tracker(obj)
-        # TODO: add trackers based on class
-        context.scene.observed_gpens.add()
+        item = context.scene.observed_gpens.add()
+        item.name = gpen.name
+        item.gpen = gpen
+        item.layers = gpen.layers
 
-    def remove_tracker(self, context, obj):
-        """Remove object from tracking list"""
+        add_gpen_tracker(gpen)
 
-        remove_tracker(obj)
-        # TODO: add trackers based on class
-        context.scene.observed_gpens.remove()
+    def remove_tracker(self, context, gpen):
+        """Remove gpen from tracking list"""
+
+        index = remove_gpen_tracker(gpen)
+        context.scene.observed_gpens.remove(index)
 
 
 # -- select tracking -- #
@@ -72,7 +78,7 @@ class TrackActiveABC(Track):
         )
 
 
-class RECORDER_OT_start_track_active(TrackActiveABC, bpy.types.Operator):
+class RECORDER_OT_start_track_active(TrackActiveABC, Operator):
     """Start tracking of selected Grease Pencil strokes."""
 
     bl_idname = "action_recorder.start_track_active"
@@ -87,7 +93,7 @@ class RECORDER_OT_start_track_active(TrackActiveABC, bpy.types.Operator):
         for obj in selected_objects:
             gpen = obj.data
 
-            if is_tracked(gpen):
+            if is_gpen_tracked(gpen):
                 self.report(
                     {'INFO'},
                     '{} is already being tracked!'.format(gpen.name)
@@ -99,7 +105,7 @@ class RECORDER_OT_start_track_active(TrackActiveABC, bpy.types.Operator):
         return {'FINISHED'}
 
 
-class RECORDER_OT_stop_track_active(TrackActiveABC, bpy.types.Operator):
+class RECORDER_OT_stop_track_active(TrackActiveABC, Operator):
     """Stop tracking of selected Grease Pencil strokes."""
 
     bl_idname = "action_recorder.stop_track_active"
@@ -112,7 +118,7 @@ class RECORDER_OT_stop_track_active(TrackActiveABC, bpy.types.Operator):
 
         return (
             TrackActiveABC.poll(context)
-            and tracked_len() > 0
+            and tracked_gpen_len() > 0
         )
 
     def execute(self, context) -> set:
@@ -124,7 +130,7 @@ class RECORDER_OT_stop_track_active(TrackActiveABC, bpy.types.Operator):
             gpen = obj.data
 
             # TODO: remove check on implemetation
-            if is_tracked(gpen):
+            if is_gpen_tracked(gpen):
                 self.remove_tracker(context, gpen)
                 print("Stopped tracking " + str(gpen))
 
@@ -135,7 +141,7 @@ class RECORDER_OT_stop_track_active(TrackActiveABC, bpy.types.Operator):
 class TrackNameABC(Track):
     """Parent class for tracking Grease Pencils by name."""
 
-    def get_gpen(self, name: str) -> Union[bpy.types.GreasePencil, None]:
+    def get_gpen(self, name: str) -> Union[GreasePencil, None]:
         """Get Grease Pencil by name.
 
             Returns:
@@ -155,7 +161,7 @@ class TrackNameABC(Track):
         return gpen
 
 
-class RECORDER_OT_start_track_name(TrackNameABC, bpy.types.Operator):
+class RECORDER_OT_start_track_name(TrackNameABC, Operator):
     """Start tracking of Grease pencil by name."""
 
     bl_idname = "action_recorder.start_track_name"
@@ -180,7 +186,7 @@ class RECORDER_OT_start_track_name(TrackNameABC, bpy.types.Operator):
             )
             return {'CANCELLED'}
 
-        if is_tracked(gpen):
+        if is_gpen_tracked(gpen):
             self.report(
                 {'INFO'},
                 '{} is already being tracked!'.format(gpen.name)
@@ -196,7 +202,7 @@ class RECORDER_OT_start_track_name(TrackNameABC, bpy.types.Operator):
         return context.window_manager.invoke_props_dialog(self)
 
 
-class RECORDER_OT_stop_track_name(TrackNameABC, bpy.types.Operator):
+class RECORDER_OT_stop_track_name(TrackNameABC, Operator):
     """Stop tracking of Grease pencil by name."""
 
     bl_idname = "action_recorder.stop_track_name"
@@ -214,7 +220,7 @@ class RECORDER_OT_stop_track_name(TrackNameABC, bpy.types.Operator):
 
         return (
             context.area.type == "VIEW_3D"
-            and tracked_len() > 0
+            and tracked_gpen_len() > 0
         )
 
     def execute(self, context) -> set:
@@ -231,7 +237,7 @@ class RECORDER_OT_stop_track_name(TrackNameABC, bpy.types.Operator):
             return {'CANCELLED'}
 
         # TODO: remove check on implemetation
-        if is_tracked(gpen):
+        if is_gpen_tracked(gpen):
             self.remove_tracker(context, gpen)
             print("Stopped tracking " + str(gpen))
 

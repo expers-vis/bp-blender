@@ -17,41 +17,46 @@ import bpy      # type: ignore
 from .frame_observer import FrameObserver
 
 
-tracked_pencils = list()        # list of ids of tracked objects
+tracked_gpens = list()        # list of ids of tracked objects
 
 
-def tracked_len() -> int:
-    """Get number of tracked objects."""
+def tracked_gpen_len() -> int:
+    """Get number of tracked Grease Pencils."""
 
-    return len(tracked_pencils)
-
-
-def is_tracked(obj: object) -> bool:
-    """Determine if object is tracked."""
-
-    return id(obj) in tracked_pencils
+    return len(tracked_gpens)
 
 
-def add_tracker(obj: object) -> bool:
-    """Add object on the list of tracked objects.
+def is_gpen_tracked(obj: object) -> bool:
+    """Determine if Grease Pencil is tracked."""
+
+    return obj in tracked_gpens
+
+
+def add_gpen_tracker(obj: object) -> int:
+    """Add Grease Pencil on the list of tracked objects.
 
         Returns:
-            bool: True if objects is added, False if object is already present
+            int: Object ID if objects is added, 0 if object is already present
     """
 
-    if is_tracked(obj):
-        return False
+    if is_gpen_tracked(obj):
+        return 0
 
-    tracked_pencils.append(id(obj))
-    return True
+    tracked_gpens.append(obj)
+    return id(obj)
 
 
-def remove_tracker(obj: object) -> None:
-    """Remove object from the list of tracked objects."""
+def remove_gpen_tracker(obj: object) -> int:
+    """Remove object from the list of tracked objects.
 
-    oid = id(obj)
-    if oid in tracked_pencils:
-        tracked_pencils.remove(oid)
+        Returns:
+            int: index of Grease Pencil on the list
+    """
+
+    if obj in tracked_gpens:
+        index = tracked_gpens.index(obj)
+        tracked_gpens.remove(obj)
+        return index
 
 
 def observe_frame(frame: bpy.types.GPencilFrame) -> FrameObserver:

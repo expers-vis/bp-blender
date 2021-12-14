@@ -11,10 +11,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from bpy.types import PropertyGroup     # type: ignore
+from bpy.types import (     # type: ignore
+    PropertyGroup,
+    GreasePencil
+)
 from bpy.props import (                 # type: ignore
     IntProperty,
     StringProperty,
+    PointerProperty,
     CollectionProperty
 )
 
@@ -42,6 +46,10 @@ class GPenListItem(PropertyGroup):
         name='Name',                                                # noqa
         description='Name of this Grease Pencil',                   # noqa
         default='Untitled',                                         # noqa
+    )
+
+    gpen: PointerProperty(
+        type=GreasePencil
     )
 
     layer_list: CollectionProperty(
