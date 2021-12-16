@@ -12,24 +12,42 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+from bpy.types import GreasePencil      # type: ignore
+from bpy.props import IntProperty       # type: ignore
+
 from .utils import get_timestamp
+from .database import data
 from .gpen_observer import GPenObserver
 from .frame_observer import FrameObserver
 from .tracking import (
     is_gpen_tracked,
     add_gpen_tracker,
-    remove_gpen_tracker,
-    observe_frame
+    remove_gpen_tracker
 )
 
 
 # add classes to __all__ to comply with PEP8
 __all__ = [
     'get_timestamp',
+    'data',
     'GPenObserver',
     'FrameObserver',
     'is_gpen_tracked',
     'add_gpen_tracker',
-    'remove_gpen_tracker',
-    'observe_frame',
+    'remove_gpen_tracker'
 ]
+
+
+def register():
+    GreasePencil.layer_index = IntProperty(
+        name='layers_index',
+        default=0,
+        options={'HIDDEN'}      # noqa
+    )
+
+
+def unregister():
+    try:
+        del GreasePencil.layer_index
+    except AttributeError:
+        pass

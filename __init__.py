@@ -12,6 +12,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+from . import lib
 from . import operators
 from . import ui
 
@@ -31,6 +32,7 @@ bl_info = {
 
 def register():
     try:
+        lib.register()
         operators.register()
         ui.register()
     except Exception as e:
@@ -39,6 +41,7 @@ def register():
 
 
 def unregister():
+    lib.unregister()
     operators.unregister()
     ui.unregister()
 

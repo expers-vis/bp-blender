@@ -14,6 +14,8 @@
 
 import bpy      # type: ignore
 
+from ..lib import data
+
 
 class RECORDER_PT_main_panel(bpy.types.Panel):
     """Main panel class containg Addon GUI."""
@@ -26,10 +28,9 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        scene = context.scene
 
-        if not scene.is_observing:
-            # no gpen selected for obseervation
+        if not data.is_observing:
+            # no gpen selected for observation
 
             layout.label(text='Control trackers')
             layout.operator(
@@ -39,9 +40,33 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
         else:
             # gpen has been selected
 
-            layout.label(text=f'Tracking { scene.observed_gpen.name }.')
+            observer = data.observed_gpen
+
+            layout.label(text=f'Tracking { observer.name }.')
 
             layout.operator(
                 'action_recorder.stop_track_active',
                 text='Stop tracking'
             )
+
+            layout.separator()
+            layout.label(text="Layer select:")
+            layout.template_list(
+                "RECORDER_UL_layer_list",
+                "layer_list",
+                observer,
+                "layers",
+                observer.gpen,
+                "layer_index"
+            )
+
+            layout.separator()
+            layout.label(text='Changes:')
+            # layout.template_list(
+            #     "RECORDER_UL_change_list",
+            #     "change_list",
+            #     scene,
+            #     "observed_gpens",
+            #     scene,
+            #     "observed_gpens_index"
+            # )

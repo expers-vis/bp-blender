@@ -12,13 +12,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-from bpy.types import (     # type: ignore
+from bpy.types import (                 # type: ignore
+    PropertyGroup,
     GreasePencil
 )
-from ..lib import get_timestamp
+
+from .utils import get_timestamp
 
 
-class GPenObserver():
+class GPenObserver(PropertyGroup):
     """Observer class used to observe changes in GreasePencil object.
 
         This class also doubles as PropertyGroup object used for displaying
@@ -26,9 +28,14 @@ class GPenObserver():
     """
 
     def __init__(self, observee: GreasePencil) -> None:
+        self.id = id(observee)
+        self.name = observee.name
         self.gpen = observee
-        self.layers = observee.layers
         self.last_count = self.layers.__len__()
+
+    @property
+    def layers(self):
+        return self.gpen.layers
 
     def get_gpen(self) -> GreasePencil:
         return self.gpen

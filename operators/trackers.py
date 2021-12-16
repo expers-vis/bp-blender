@@ -38,7 +38,6 @@ class Track():
         remove_gpen_tracker()
 
 
-# -- select tracking -- #
 class TrackActiveABC(Track):
     """Parent class for tracking selected Grease Pencils."""
 
@@ -96,7 +95,7 @@ class RECORDER_OT_start_track_active(TrackActiveABC, Operator):
         return {'FINISHED'}
 
 
-class RECORDER_OT_stop_track_active(TrackActiveABC, Operator):
+class RECORDER_OT_stop_track_active(Track, Operator):
     """Stop tracking of selected Grease Pencil strokes."""
 
     bl_idname = "action_recorder.stop_track_active"
@@ -106,14 +105,7 @@ class RECORDER_OT_stop_track_active(TrackActiveABC, Operator):
     def execute(self, context) -> set:
         """Execute the operator."""
 
-        selected_objects = bpy.context.selected_objects
-
-        for obj in selected_objects:
-            gpen = obj.data
-
-            # TODO: remove check on implemetation
-            if is_gpen_tracked(gpen):
-                self.remove_tracker(context)
-                print("Stopped tracking " + str(gpen))
+        self.remove_tracker(context)
+        print("Stopped tracking.")
 
         return {'FINISHED'}

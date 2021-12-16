@@ -12,22 +12,25 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-import bpy                              # type: ignore
 from bpy.types import (                 # type: ignore
     GreasePencil,
     GPencilFrame
 )
 from bpy.props import IntProperty       # type: ignore
 
+from ..lib import data
 from .frame_observer import FrameObserver
 
 
 def is_gpen_tracked(gpen: GreasePencil) -> bool:
-    """Determine if Grease Pencil is tracked."""
+    """Determine if Grease Pencil is currently being tracked."""
 
-    scene = bpy.context.scene
+    observed_gpen = data.observed_gpen
 
-    return id(gpen) == id(scene.observed_gpen)
+    if not observed_gpen:
+        return False
+
+    return id(gpen) == id(observed_gpen.id)
 
 
 def add_gpen_tracker(gpen: GreasePencil) -> bool:
@@ -40,26 +43,17 @@ def add_gpen_tracker(gpen: GreasePencil) -> bool:
     if is_gpen_tracked(gpen):
         return False
 
-    scene = bpy.context.scene
-
-    scene.observed_gpen = gpen
-    scene.is_observing = True
+    data.observed_gpen = data.database.get_observer(gpen)
+    data.is_observing = True
 
     return True
 
 
-# TODO
 def remove_gpen_tracker() -> None:
-    """Stop tracking Grease Pencil.
+    """Stop tracking Grease Pencil."""
 
-        Returns:
-            data: TODO: return data from tracking
-    """
-
-    scene = bpy.context.scene
-
-    scene.observed_gpen = None
-    scene.is_observing = False
+    data.observed_gpen = None
+    data.is_observing = False
 
 
 def observe_frame(frame: GPencilFrame) -> FrameObserver:
