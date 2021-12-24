@@ -29,7 +29,7 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        if not data.is_observing:
+        if not data.is_active():
             # no gpen selected for observation
 
             layout.label(text='Control trackers')
@@ -40,7 +40,8 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
         else:
             # gpen has been selected
 
-            observer = data.observed_gpen
+            observer = data.get_active_observer()
+            selected_layer = observer.layers[observer.get_gpen().layer_index]
 
             layout.label(text=f'Tracking { observer.name }.')
 
@@ -56,12 +57,12 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
                 "layer_list",
                 observer,
                 "layers",
-                observer.gpen,
+                observer.get_gpen(),
                 "layer_index"
             )
 
             layout.separator()
-            layout.label(text='Changes:')
+            layout.label(text=f'Changes in layer { selected_layer.info }:')
             # layout.template_list(
             #     "RECORDER_UL_change_list",
             #     "change_list",

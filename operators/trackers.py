@@ -17,11 +17,7 @@ from bpy.types import (     # type: ignore
     Operator
 )
 
-from ..lib import (
-    is_gpen_tracked,
-    add_gpen_tracker,
-    remove_gpen_tracker,
-)
+from ..lib import data
 
 
 class Track():
@@ -30,12 +26,12 @@ class Track():
     def add_tracker(self, context, gpen):
         """Add gpen to tracked list."""
 
-        add_gpen_tracker(gpen)
+        data.start_tracking(gpen)
 
     def remove_tracker(self, context):
         """Remove gpen from tracking list"""
 
-        remove_gpen_tracker()
+        data.stop_tracking()
 
 
 class TrackActiveABC(Track):
@@ -83,7 +79,7 @@ class RECORDER_OT_start_track_active(TrackActiveABC, Operator):
         for obj in selected_objects:
             gpen = obj.data
 
-            if is_gpen_tracked(gpen):
+            if data.is_observed(gpen):
                 self.report(
                     {'INFO'},
                     '{} is already being tracked!'.format(gpen.name)

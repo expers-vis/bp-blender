@@ -12,26 +12,26 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-import bpy      # type: ignore
+from bpy.types import GPencilLayer      # type: ignore
+
 from .utils import get_timestamp
 
 
-class FrameObserver(object):
-    """Observer class used to observe changes in GPencilFrame object."""
+class LayerObserver(object):
+    """Observer class used to observe changes in GPencilLayer object."""
 
-    def __init__(self, observee: bpy.types.GPencilFrame) -> None:
+    def __init__(self, observee: GPencilLayer) -> None:
+        self.id = id(observee)
+        self.name = observee.info
         self.frame = observee
         self.strokes = observee.strokes
         self.last_count = self.strokes.__len__()
 
-    def get_frame(self) -> bpy.types.GPencilFrame:
+    def get_frame(self) -> GPencilLayer:
         return self.frame
 
     def get_frame_id(self) -> int:
         return id(self.frame)
-
-    def get_strokes(self) -> bpy.types.bpy_prop_collection:
-        return self.strokes
 
     def get_stroke_count(self) -> int:
         return self.strokes.__len__()

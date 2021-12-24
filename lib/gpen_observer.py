@@ -38,9 +38,13 @@ class GPenObserver(PropertyGroup):
         return self.gpen.layers
 
     def get_gpen(self) -> GreasePencil:
+        """Get observed GreasePencil object."""
+
         return self.gpen
 
     def get_layer_count(self) -> int:
+        """Get number of observed layers."""
+
         return self.layers.__len__()
 
     def on_add(self) -> None:

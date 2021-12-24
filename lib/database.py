@@ -16,6 +16,8 @@ from bpy.types import GreasePencil     # type: ignore
 
 from .gpen_observer import GPenObserver
 
+from typing import Union
+
 
 # TODO: implement data storage
 class ObserverDatabase():
@@ -23,10 +25,37 @@ class ObserverDatabase():
 
     def __init__(self) -> None:
         self.records: list[GPenObserver] = list()       # list of tracked gpens
+        self.active_observer: Union[GPenObserver, None] = None
         self.load_data()
 
     def __del__(self):
         self.store_data()
+
+    def is_active(self) -> bool:
+        """Check if any gpen is being observed."""
+
+        return bool(self.active_observer)
+
+    def is_observed(self, gpen: GreasePencil) -> bool:
+        """Check if concrete gpen is being observed"""
+
+        if self.is_active():
+            return self.active_observer.id == id(gpen)
+        else:
+            return False
+
+    def get_active_layer_count(self) -> int:
+        """Get number of layers of observed gpen."""
+
+        if self.is_active():
+            return self.active_observer.get_layer_count()
+        else:
+            return 0
+
+    def get_active_observer(self) -> Union[GPenObserver, None]:
+        """Get active observer or None if there is no active observer"""
+
+        return self.active_observer
 
     def get_observer(self, gpen: GreasePencil) -> GPenObserver:
         """Get GPenObserver object for gpen.
@@ -44,6 +73,16 @@ class ObserverDatabase():
 
         return observer
 
+    def start_tracking(self, gpen: GreasePencil):
+        """Start tracking Grease Pencil."""
+
+        self.active_observer = self.get_observer(gpen)
+
+    def stop_tracking(self):
+        """Stop tracking Grease Pencil."""
+
+        self.active_observer = None
+
     def store_data(self):
         """Store recorded data."""
 
@@ -51,26 +90,26 @@ class ObserverDatabase():
         """Load recorded data."""
 
 
-class DataGroup():
-    """Property group containing addon data."""
-
-    def __init__(self) -> None:
-        self.__database__ = ObserverDatabase()
-        self.__observed_gpen__ = None
-        self.is_observing = False
-
-    @property
-    def database(self) -> ObserverDatabase:
-        return self.__database__
-
-    @property
-    def observed_gpen(self) -> GPenObserver:
-        return self.__observed_gpen__
-
-    @observed_gpen.setter
-    def observed_gpen(self, value: GPenObserver):
-        self.__observed_gpen__ = value
+# universal database instance
+data = ObserverDatabase()
 
 
-# universal data group instance
-data = DataGroup()
+def get_active_layer_count(self) -> int:
+    """Retrieve number of layers in observed gpen.
+
+        This function will become method of the GreasePencil class called
+        to get the number of layers.
+    """
+
+    return len(self.layers)
+
+
+def notify_layer_change(self, context):
+    """Function handling layer change.
+
+        This function will become method of the GreasePencil class called
+        when number of layers have changed.
+    """
+
+    if data.is_observed(self):
+        data.get_observer(self).notify()

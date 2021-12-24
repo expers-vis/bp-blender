@@ -13,53 +13,17 @@
 
 
 from bpy.types import (                 # type: ignore
-    GreasePencil,
     GPencilFrame
 )
 from bpy.props import IntProperty       # type: ignore
 
-from ..lib import data
-from .frame_observer import FrameObserver
+from .layer_observer import LayerObserver
 
 
-def is_gpen_tracked(gpen: GreasePencil) -> bool:
-    """Determine if Grease Pencil is currently being tracked."""
-
-    observed_gpen = data.observed_gpen
-
-    if not observed_gpen:
-        return False
-
-    return id(gpen) == id(observed_gpen.id)
-
-
-def add_gpen_tracker(gpen: GreasePencil) -> bool:
-    """Start tracking Grease Pencil.
-
-        Returns:
-            int: Object ID if objects is added, 0 if object is already present
-    """
-
-    if is_gpen_tracked(gpen):
-        return False
-
-    data.observed_gpen = data.database.get_observer(gpen)
-    data.is_observing = True
-
-    return True
-
-
-def remove_gpen_tracker() -> None:
-    """Stop tracking Grease Pencil."""
-
-    data.observed_gpen = None
-    data.is_observing = False
-
-
-def observe_frame(frame: GPencilFrame) -> FrameObserver:
+def observe_frame(frame: GPencilFrame) -> LayerObserver:
     """Put observer onto the frame."""
 
-    observer = FrameObserver(frame)
+    observer = LayerObserver(frame)
 
     GPencilFrame.stroke_count = IntProperty(
         name='stroke_count_' + str(id(frame)),

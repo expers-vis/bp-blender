@@ -16,13 +16,12 @@ from bpy.types import GreasePencil      # type: ignore
 from bpy.props import IntProperty       # type: ignore
 
 from .utils import get_timestamp
-from .database import data
 from .gpen_observer import GPenObserver
-from .frame_observer import FrameObserver
-from .tracking import (
-    is_gpen_tracked,
-    add_gpen_tracker,
-    remove_gpen_tracker
+from .layer_observer import LayerObserver
+from .database import (
+    data,
+    get_active_layer_count,
+    notify_layer_change
 )
 
 
@@ -31,10 +30,7 @@ __all__ = [
     'get_timestamp',
     'data',
     'GPenObserver',
-    'FrameObserver',
-    'is_gpen_tracked',
-    'add_gpen_tracker',
-    'remove_gpen_tracker'
+    'LayerObserver'
 ]
 
 
@@ -44,10 +40,17 @@ def register():
         default=0,
         options={'HIDDEN'}      # noqa
     )
+    GreasePencil.layer_count = IntProperty(
+        name='layer_count',
+        get=get_active_layer_count,
+        update=notify_layer_change,
+        options={'HIDDEN'},     # noqa
+    )
 
 
 def unregister():
     try:
         del GreasePencil.layer_index
+        del GreasePencil.layer_count
     except AttributeError:
         pass
