@@ -12,7 +12,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+import logging
 import time
+
+
+logger = logging.getLogger(__name__ + '.recorder_addon')
+streams = ('critical', 'error', 'warning', 'info', 'debug')
 
 
 def get_timestamp():
@@ -20,3 +25,19 @@ def get_timestamp():
 
     t = time.localtime()
     return time.strftime('%H:%M:%S', t)
+
+
+def log(msg: str, stream: str = 'info'):
+    """Send a message onto the logging stream
+
+    Args:
+        msg (str): message string
+        stream (str): stream type from (critical, error, warning, info, debug)
+    """
+
+    if stream not in streams:
+        return
+
+    send_msg = getattr(logger, stream)
+
+    send_msg(msg)
