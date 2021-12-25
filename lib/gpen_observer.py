@@ -17,7 +17,8 @@ from bpy.types import (                 # type: ignore
     GreasePencil
 )
 
-from .utils import get_timestamp
+from .database import data
+from .utils import get_timestamp, log
 
 
 class GPenObserver(PropertyGroup):
@@ -54,6 +55,7 @@ class GPenObserver(PropertyGroup):
         print(get_timestamp() + ": layer removed.")
 
     def notify(self) -> None:
+        log(str(self.gpen) + ' notified of change', 'debug')
         new_count = self.get_layer_count()
 
         if(self.last_count < new_count):
@@ -61,3 +63,30 @@ class GPenObserver(PropertyGroup):
         elif(self.last_count > new_count):
             self.on_remove()
         self.last_count = new_count
+
+
+def get_active_layer_count(self) -> int:
+    """Retrieve number of layers in observed gpen.
+
+        This function will become method of the GreasePencil class called
+        to get the number of layers.
+    """
+
+    print('getting layer count')
+    log('getting layer count')
+
+    return len(self.layers)
+
+
+def notify_layer_change(self, context):
+    """Function handling layer change.
+
+        This function will become method of the GreasePencil class called
+        when number of layers have changed.
+    """
+
+    print('notifying ' + str(self))
+    log('notifying ' + str(self), 'debug')
+
+    if data.is_observed(self):
+        data.get_observer(self).notify()

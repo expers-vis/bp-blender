@@ -15,6 +15,7 @@
 from bpy.types import GreasePencil     # type: ignore
 
 from .gpen_observer import GPenObserver
+from .utils import log
 
 from typing import Union
 
@@ -92,24 +93,3 @@ class ObserverDatabase():
 
 # universal database instance
 data = ObserverDatabase()
-
-
-def get_active_layer_count(self) -> int:
-    """Retrieve number of layers in observed gpen.
-
-        This function will become method of the GreasePencil class called
-        to get the number of layers.
-    """
-
-    return len(self.layers)
-
-
-def notify_layer_change(self, context):
-    """Function handling layer change.
-
-        This function will become method of the GreasePencil class called
-        when number of layers have changed.
-    """
-
-    if data.is_observed(self):
-        data.get_observer(self).notify()

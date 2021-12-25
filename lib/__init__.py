@@ -16,13 +16,13 @@ from bpy.types import GreasePencil      # type: ignore
 from bpy.props import IntProperty       # type: ignore
 
 from .utils import get_timestamp
-from .gpen_observer import GPenObserver
-from .layer_observer import LayerObserver
-from .database import (
-    data,
+from .database import data
+from .gpen_observer import (
+    GPenObserver,
     get_active_layer_count,
     notify_layer_change
 )
+from .layer_observer import LayerObserver
 
 
 # add classes to __all__ to comply with PEP8
