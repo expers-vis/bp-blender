@@ -68,8 +68,8 @@ class RECORDER_OT_start_track_active(TrackActiveABC, Operator):
     """Start tracking of selected Grease Pencil strokes."""
 
     bl_idname = "action_recorder.start_track_active"
-    bl_label = "Tracker Start Operartor"
-    bl_description = "Start tracking of selected Grease Pencil strokes."
+    bl_label = "Start tracking"
+    bl_description = "Start tracking selected Grease Pencil."
 
     def execute(self, context) -> set:
         """Execute the operator."""
@@ -95,13 +95,45 @@ class RECORDER_OT_stop_track_active(Track, Operator):
     """Stop tracking of selected Grease Pencil strokes."""
 
     bl_idname = "action_recorder.stop_track_active"
-    bl_label = "Tracker Stop Operartor"
-    bl_description = "Stop tracking of selected Grease Pencil strokes."
+    bl_label = "Stop tracking"
+    bl_description = "Stop tracking selected Grease Pencil."
 
     def execute(self, context) -> set:
         """Execute the operator."""
 
         self.remove_tracker(context)
         print("Stopped tracking.")
+
+        return {'FINISHED'}
+
+
+class RECORDER_OT_pause_tracking(Operator):
+    """Pause active tracking of selected Grease Pencil."""
+
+    bl_idname = "action_recorder.pause_tracking"
+    bl_label = "Pause tracking"
+    bl_description = "Pause active tracking of selected Grease Pencil."
+
+    def execute(self, context) -> set:
+        gpen = data.get_active_observer()
+
+        if gpen:
+            gpen.set_active(False)
+
+        return {'FINISHED'}
+
+
+class RECORDER_OT_resume_tracking(Operator):
+    """Resume active tracking of selected Grease Pencil."""
+
+    bl_idname = "action_recorder.resume_tracking"
+    bl_label = "Resume tracking"
+    bl_description = "Resume active tracking of selected Grease Pencil."
+
+    def execute(self, context) -> set:
+        gpen = data.get_active_observer()
+
+        if gpen:
+            gpen.set_active(True)
 
         return {'FINISHED'}

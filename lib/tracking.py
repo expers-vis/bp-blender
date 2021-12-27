@@ -18,7 +18,8 @@ from bpy.types import (                 # type: ignore
 from bpy.props import IntProperty       # type: ignore
 
 from .layer_observer import LayerObserver
-
+from .utils import log
+from . import database
 
 def observe_frame(frame: GPencilFrame) -> LayerObserver:
     """Put observer onto the frame."""
@@ -32,3 +33,51 @@ def observe_frame(frame: GPencilFrame) -> LayerObserver:
     )
 
     return observer
+
+
+# active observation functions
+def observe_layers() -> None:
+    """Actively observe changes to the layer.
+
+        This function will be called periodically by blender and will report
+        changes to the active observer.
+    """
+
+    observer = database.data.get_active_observer()
+    new_count = observer.get_layer_count()
+
+    if(observer.last_count < new_count):
+        observer.on_add()
+    elif(observer.last_count > new_count):
+        observer.on_remove()
+    observer.last_count = new_count
+
+    return observer.interval
+
+
+# passive observation functions
+def get_active_layer_count(self) -> int:
+    """Retrieve number of layers in observed gpen.
+
+        This function will become method of the GreasePencil class called
+        to get the number of layers.
+    """
+
+    print('getting layer count')
+    log('getting layer count')
+
+    return len(self.layers)
+
+
+def notify_layer_change(self, context):
+    """Function handling layer change.
+
+        This function will become method of the GreasePencil class called
+        when number of layers have changed.
+    """
+
+    print('notifying ' + str(self))
+    log('notifying ' + str(self), 'debug')
+
+    if database.data.is_observed(self):
+        database.data.get_observer(self).notify()

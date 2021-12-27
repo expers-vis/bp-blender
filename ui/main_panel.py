@@ -33,10 +33,7 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
             # no gpen selected for observation
 
             layout.label(text='Control trackers')
-            layout.operator(
-                'action_recorder.start_track_active',
-                text='Track selected GPencil'
-            )
+            layout.operator('action_recorder.start_track_active')
         else:
             # gpen has been selected
 
@@ -45,10 +42,12 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
 
             layout.label(text=f'Tracking { observer.name }.')
 
-            layout.operator(
-                'action_recorder.stop_track_active',
-                text='Stop tracking'
-            )
+            if observer.is_active():
+                layout.operator('action_recorder.pause_tracking')
+            else:
+                layout.operator('action_recorder.resume_tracking')
+
+            layout.operator('action_recorder.stop_track_active')
 
             layout.separator()
             layout.label(text="Layer select:")

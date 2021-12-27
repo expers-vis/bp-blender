@@ -18,7 +18,9 @@ from bpy.props import IntProperty       # type: ignore
 from .utils import get_timestamp
 from .database import data
 from .gpen_observer import (
-    GPenObserver,
+    GPenObserver
+)
+from .tracking import (
     get_active_layer_count,
     notify_layer_change
 )

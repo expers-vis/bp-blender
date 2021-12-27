@@ -15,7 +15,6 @@
 from bpy.types import GreasePencil     # type: ignore
 
 from .gpen_observer import GPenObserver
-from .utils import log
 
 from typing import Union
 
@@ -78,10 +77,12 @@ class ObserverDatabase():
         """Start tracking Grease Pencil."""
 
         self.active_observer = self.get_observer(gpen)
+        self.active_observer.set_active(True)
 
     def stop_tracking(self):
         """Stop tracking Grease Pencil."""
 
+        self.active_observer.set_active(False)
         self.active_observer = None
 
     def store_data(self):

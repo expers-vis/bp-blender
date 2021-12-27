@@ -16,9 +16,10 @@ from bpy.types import (                 # type: ignore
     PropertyGroup,
     GreasePencil
 )
+import bpy.app.timers as timers             # type: ignore
 
-from .database import data
 from .utils import get_timestamp, log
+from .tracking import observe_layers
 
 
 class GPenObserver(PropertyGroup):
@@ -34,9 +35,30 @@ class GPenObserver(PropertyGroup):
         self.gpen = observee
         self.last_count = self.layers.__len__()
 
+        # active observing
+        self.active = False
+        self.paused = False
+        self.interval = 1.0
+
     @property
     def layers(self):
         return self.gpen.layers
+
+    def is_active(self) -> bool:
+        """Returns whether observer is active"""
+
+        return self.active
+
+    def set_active(self, status: bool) -> None:
+        """Set active status of observer"""
+
+        self.active = status
+        registered = timers.is_registered(observe_layers)
+
+        if status and (not registered):
+            timers.register(observe_layers)
+        elif (not status) and registered:
+            timers.unregister(observe_layers)
 
     def get_gpen(self) -> GreasePencil:
         """Get observed GreasePencil object."""
@@ -63,30 +85,3 @@ class GPenObserver(PropertyGroup):
         elif(self.last_count > new_count):
             self.on_remove()
         self.last_count = new_count
-
-
-def get_active_layer_count(self) -> int:
-    """Retrieve number of layers in observed gpen.
-
-        This function will become method of the GreasePencil class called
-        to get the number of layers.
-    """
-
-    print('getting layer count')
-    log('getting layer count')
-
-    return len(self.layers)
-
-
-def notify_layer_change(self, context):
-    """Function handling layer change.
-
-        This function will become method of the GreasePencil class called
-        when number of layers have changed.
-    """
-
-    print('notifying ' + str(self))
-    log('notifying ' + str(self), 'debug')
-
-    if data.is_observed(self):
-        data.get_observer(self).notify()
