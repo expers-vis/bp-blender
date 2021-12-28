@@ -16,16 +16,19 @@ from bpy.types import GreasePencil      # type: ignore
 from bpy.props import IntProperty       # type: ignore
 
 from .utils import get_timestamp
-from .database import data
-from .gpen_observer import (
-    GPenObserver
+from . import database
+from .observers import (
+    GPenObserver,
+    LayerObserver
 )
 from .tracking import (
     get_active_layer_count,
     notify_layer_change
 )
-from .layer_observer import LayerObserver
 
+
+# export database instance
+data = database.data
 
 # add classes to __all__ to comply with PEP8
 __all__ = [
@@ -40,13 +43,13 @@ def register():
     GreasePencil.layer_index = IntProperty(
         name='layers_index',
         default=0,
-        options={'HIDDEN'}      # noqa
+        options={'HIDDEN'}
     )
     GreasePencil.layer_count = IntProperty(
         name='layer_count',
         get=get_active_layer_count,
         update=notify_layer_change,
-        options={'HIDDEN'},     # noqa
+        options={'HIDDEN'}
     )
 
 

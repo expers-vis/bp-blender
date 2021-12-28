@@ -11,28 +11,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
-from bpy.types import (                 # type: ignore
-    GPencilFrame
-)
-from bpy.props import IntProperty       # type: ignore
-
-from .layer_observer import LayerObserver
 from .utils import log
 from . import database
-
-def observe_frame(frame: GPencilFrame) -> LayerObserver:
-    """Put observer onto the frame."""
-
-    observer = LayerObserver(frame)
-
-    GPencilFrame.stroke_count = IntProperty(
-        name='stroke_count_' + str(id(frame)),
-        update=observer.notify(),
-        get=observer.get_stroke_count()
-    )
-
-    return observer
 
 
 # active observation functions
@@ -53,6 +33,14 @@ def observe_layers() -> None:
     observer.last_count = new_count
 
     return observer.interval
+
+
+def observe_strokes() -> None:
+    """Actively observe changes to the strokes inside the layer.
+
+        This function will be called periodically by blender and will report
+        changes to the active observer.
+    """
 
 
 # passive observation functions

@@ -14,7 +14,7 @@
 
 from bpy.types import GreasePencil     # type: ignore
 
-from .gpen_observer import GPenObserver
+from .observers import GPenObserver
 
 from typing import Union
 

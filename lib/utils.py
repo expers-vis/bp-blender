@@ -35,6 +35,7 @@ def log(msg: str, stream: str = 'info'):
         stream (str): stream type from (critical, error, warning, info, debug)
     """
 
+    stream = stream.lower()
     if stream not in streams:
         return
 
