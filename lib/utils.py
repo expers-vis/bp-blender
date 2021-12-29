@@ -16,8 +16,11 @@ import logging
 import time
 
 
-logger = logging.getLogger(__name__ + '.recorder_addon')
-streams = ('critical', 'error', 'warning', 'info', 'debug')
+logging.basicConfig(
+    filename='blender_recorder.log',
+    level=logging.INFO
+)
+levels = ('critical', 'error', 'warning', 'info', 'debug')
 
 
 def get_timestamp():
@@ -27,18 +30,18 @@ def get_timestamp():
     return time.strftime('%H:%M:%S', t)
 
 
-def log(msg: str, stream: str = 'info'):
+def log(msg: str, level: str = 'info'):
     """Send a message onto the logging stream
 
     Args:
         msg (str): message string
-        stream (str): stream type from (critical, error, warning, info, debug)
+        stream (str): logging level from (critical, error, warning, info, debug)
     """
 
-    stream = stream.lower()
-    if stream not in streams:
+    level = level.lower()
+    if level not in levels:
         return
 
-    send_msg = getattr(logger, stream)
+    send_msg = getattr(logging, level)
 
     send_msg(msg)
