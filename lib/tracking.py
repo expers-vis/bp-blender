@@ -35,7 +35,7 @@ def observe_layers() -> None:
     return observer.interval
 
 
-def observe_strokes() -> None:
+def observe_strokes(observer) -> None:
     """Actively observe changes to the strokes inside the layer.
 
         This function will be called periodically by blender and will report

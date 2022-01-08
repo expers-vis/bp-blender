@@ -16,10 +16,20 @@ import logging
 import time
 
 
-logging.basicConfig(
-    filename='blender_recorder.log',
-    level=logging.INFO
-)
+logging_enabled = True
+
+try:
+    logging.basicConfig(
+        filename='blender_recorder.log',
+        level=logging.DEBUG
+    )
+    location = logging.getLoggerClass().root.handlers[0].baseFilename
+    print("Action Recorder: logging enabled")
+    print(f"Log file: {location}")
+except PermissionError:
+    logging_enabled = False
+    print('Action Recorder: logging disabled')
+
 levels = ('critical', 'error', 'warning', 'info', 'debug')
 
 
@@ -35,11 +45,12 @@ def log(msg: str, level: str = 'info'):
 
     Args:
         msg (str): message string
-        stream (str): logging level from (critical, error, warning, info, debug)
+        stream (str): logging level from (critical, error, warning,
+        info, debug)
     """
 
     level = level.lower()
-    if level not in levels:
+    if (level not in levels) or (not logging_enabled):
         return
 
     send_msg = getattr(logging, level)
