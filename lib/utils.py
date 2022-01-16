@@ -11,6 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import bpy      # type: ignore
 
 import logging
 import time
@@ -31,6 +32,26 @@ except PermissionError:
     print('Action Recorder: logging disabled')
 
 levels = ('critical', 'error', 'warning', 'info', 'debug')
+
+
+def register_classes(class_list: list):
+    """Register blender classes from a list"""
+
+    for cls in class_list:
+        print(cls)
+        bpy.utils.register_class(cls)
+
+
+def unregister_classes(class_list: list):
+    """Unregister blender classes from a list"""
+
+    del_list = class_list.copy()
+    while len(del_list) > 0:
+        try:
+            cls = del_list.pop()
+            bpy.utils.unregister_class(cls)
+        except RuntimeError:
+            pass
 
 
 def get_timestamp():

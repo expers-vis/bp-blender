@@ -37,12 +37,16 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
         else:
             # gpen has been selected
 
-            observer = data.get_active_observer()
-            selected_layer = observer.layers[observer.get_gpen().layer_index]
+            gpen_observer = data.get_active_observer()
+            selected_layer = gpen_observer.layers[
+                gpen_observer.get_gpen().layer_index
+            ]
+            layer_records = gpen_observer.get_layer_records(
+                selected_layer.info
+            )
 
-            layout.label(text=f'Tracking { observer.name }.')
-
-            if observer.is_active():
+            layout.label(text=f'Tracking { gpen_observer.name }.')
+            if gpen_observer.is_active():
                 layout.operator('action_recorder.pause_tracking')
             else:
                 layout.operator('action_recorder.resume_tracking')
@@ -54,19 +58,19 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
             layout.template_list(
                 "RECORDER_UL_layer_list",
                 "layer_list",
-                observer,
+                gpen_observer,
                 "layers",
-                observer.get_gpen(),
+                gpen_observer.get_gpen(),
                 "layer_index"
             )
 
             layout.separator()
             layout.label(text=f'Changes in layer { selected_layer.info }:')
-            # layout.template_list(
-            #     "RECORDER_UL_change_list",
-            #     "change_list",
-            #     scene,
-            #     "observed_gpens",
-            #     scene,
-            #     "observed_gpens_index"
-            # )
+            layout.template_list(
+                "RECORDER_UL_change_list",
+                "change_list",
+                layer_records,
+                "changes",
+                layer_records,
+                "change_index"
+            )

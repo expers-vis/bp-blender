@@ -12,10 +12,21 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-from bpy.types import GreasePencil      # type: ignore
-from bpy.props import IntProperty       # type: ignore
+from bpy.types import (       # type: ignore
+    GreasePencil,
+    GPencilLayer
+)
+from bpy.props import (       # type: ignore
+    IntProperty,
+    CollectionProperty
+)
 
-from .utils import get_timestamp
+from .utils import (
+    register_classes,
+    unregister_classes,
+    get_timestamp,
+    log
+)
 from . import database
 from .observers import (
     GPenObserver,
@@ -23,23 +34,35 @@ from .observers import (
 )
 from .tracking import (
     get_active_layer_count,
-    notify_layer_change
+    notify_layer_change,
+    ChangeGroup,
+    LayerChangesGroup
 )
 
 
 # export database instance
 data = database.data
 
-# add classes to __all__ to comply with PEP8
 __all__ = [
+    'register_classes',
+    'unregister_classes',
     'get_timestamp',
+    'log',
     'data',
     'GPenObserver',
-    'LayerObserver'
+    'LayerObserver',
+    'ChangeGroup'
+]
+
+classes = [
+    ChangeGroup,
+    LayerChangesGroup,
 ]
 
 
 def register():
+    register_classes(classes)
+
     GreasePencil.layer_index = IntProperty(
         name='layers_index',
         default=0,
@@ -51,11 +74,19 @@ def register():
         update=notify_layer_change,
         options={'HIDDEN'}
     )
+    GreasePencil.layer_records = CollectionProperty(
+        type=LayerChangesGroup,
+        options={'HIDDEN'}
+    )
 
 
 def unregister():
+    unregister_classes(classes)
+
     try:
         del GreasePencil.layer_index
         del GreasePencil.layer_count
+        del GPencilLayer.change_index
+        del GPencilLayer.changes
     except AttributeError:
         pass

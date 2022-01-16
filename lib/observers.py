@@ -42,7 +42,7 @@ class ActiveObserver():
     def __init__(self, observing_func: Callable) -> None:
         self.active = False
         self.interval = 1.0
-        self.func = observing_func
+        self.func = functools.partial(observing_func, self)
 
     def is_active(self) -> bool:
         """Returns whether observer is active"""
@@ -53,7 +53,6 @@ class ActiveObserver():
         """Set active status of observer."""
 
         self.active = status
-        func = functools.partial(self.func, self)
         registered = timers.is_registered(self.func)
 
         if status and (not registered):
@@ -71,8 +70,12 @@ class ActiveObserver():
 
 
 # NOTE: Initial limiting factor: only first frame is observed
-class LayerObserver(ActiveObserver):
-    """Observer class used to observe changes in GPencilLayer object."""
+class LayerObserver(ActiveObserver, PropertyGroup):
+    """Observer class used to observe changes in GPencilLayer object.
+
+        This class also doubles as PropertyGroup object used for displaying
+        changes in observed layer in UIList.
+    """
 
     def __init__(self, observee: GPencilLayer) -> None:
         super().__init__(observe_strokes)
@@ -81,9 +84,22 @@ class LayerObserver(ActiveObserver):
         self.name = observee.info
         self.layer = observee
         self.frame = observee.frames[0]
-        self.last_count = self.frame.strokes.__len__()
+        self.strokes = self.frame.strokes
+        self.last_count = self.strokes.__len__()
 
-        self.changes = list()
+        # reference list for comparison with actual stroke list
+        self.ref_strokes = list(self.strokes)
+        # function to record new change on parent gpen observer
+        self.add_change: Callable
+
+    @property
+    def changes(self):
+        return self.layer.changes
+
+    def set_add_function(self, func):
+        """Set a function to report a change to."""
+
+        self.add_change = func
 
     def equals(self, layer):
         """Returns whether layer is observed by this observer."""
@@ -99,8 +115,43 @@ class LayerObserver(ActiveObserver):
     def on_add(self) -> None:
         print(get_timestamp() + ": stroke added.")
 
+        for stroke in reversed(self.strokes):
+            if stroke not in self.ref_strokes:
+                self.ref_strokes.append(stroke)
+
+                self.add_change(
+                    self.name,
+                    None,       # TODO: work out referencing
+                    'Stroke added.',
+                    'PLUS',
+                )
+
     def on_remove(self) -> None:
+        # 'stroke not in self.strokes' replacement
+        def is_removed(stroke):
+            for s in self.strokes:
+                if s == stroke:
+                    return False
+
+            return True
+
         print(get_timestamp() + ": stroke removed.")
+
+        to_remove = list()
+
+        for stroke in self.ref_strokes:
+            if is_removed(stroke):
+                to_remove.append(stroke)
+
+                self.add_change(
+                    self.name,
+                    None,
+                    'Stroke removed.',
+                    'X'
+                )
+
+        for stroke in to_remove:
+            self.ref_strokes.remove(stroke)
 
     def notify(self) -> None:
         new_count = self.get_stroke_count()
@@ -129,13 +180,46 @@ class GPenObserver(ActiveObserver, PropertyGroup):
 
         self.layer_observers = dict()
         for layer in observee.layers:
-            self.layer_observers[layer] = LayerObserver(layer)
+            self.__add_layer__(layer)
 
         log(f'Observer for { observee } created.')
 
     @property
     def layers(self):
         return self.gpen.layers
+
+    def __add_layer__(self, layer):
+        """Add a new layer to track list"""
+
+        layer_observer = LayerObserver(layer)
+        layer_observer.set_add_function(self.__new_record__)
+        self.layer_observers[layer] = layer_observer
+
+        item = self.gpen.layer_records.add()
+        item.layer_name = layer.info
+
+    def __remove_layer__(self, layer):
+        """Remove a layer from track list"""
+
+        name = layer.info
+        self.layer_observers.pop(layer)
+
+        for item in self.gpen.layer_records:
+            if item.layer_name == name:
+                self.gpen.layer_records.remove(item)
+                break
+
+    def __new_record__(self, layer_name, obj, text, icon):
+        """Create a new record for a given layer"""
+
+        for item in self.gpen.layer_records:
+            if item.layer_name == layer_name:
+                change = item.changes.add()
+                change.obj = obj
+                change.text = text
+                change.icon = icon
+
+                break
 
     def get_gpen(self) -> GreasePencil:
         """Get observed GreasePencil object."""
@@ -147,6 +231,23 @@ class GPenObserver(ActiveObserver, PropertyGroup):
 
         return self.layers.__len__()
 
+    def get_layer_records(self, layer_name):
+        """Get layer records for given layer."""
+
+        for item in self.gpen.layer_records:
+            if item.layer_name == layer_name:
+                return item
+
+        return None
+
+    def set_active(self, status: bool) -> None:
+        """Set active status and propagate it to child observers."""
+
+        super().set_active(status)
+
+        for layer_observer in self.layer_observers.values():
+            layer_observer.set_active(status)
+
     def on_add(self) -> None:
         log(get_timestamp() + ": layer added.", 'debug')
         print(get_timestamp() + ": layer added.")
@@ -155,7 +256,7 @@ class GPenObserver(ActiveObserver, PropertyGroup):
 
         for layer in layers:
             if layer not in self.layer_observers.keys():
-                self.layer_observers[layer] = LayerObserver(layer)
+                self.__add_layer__(layer)
 
     def on_remove(self) -> None:
         log(get_timestamp() + ": layer removed.", 'debug')
@@ -167,7 +268,7 @@ class GPenObserver(ActiveObserver, PropertyGroup):
         to_remove = set(gpen_layers) ^ set(observed_layers)
 
         for layer in to_remove:
-            self.layer_observers.pop(layer)
+            self.__remove_layer__(layer)
 
         # adjust layer_index
         self.gpen.layer_index = min(

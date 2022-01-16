@@ -11,19 +11,45 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from bpy.types import (     # type: ignore
+    PropertyGroup,
+    Object
+)
+from bpy.props import (     # type: ignore
+    PointerProperty,
+    StringProperty,
+    IntProperty,
+    CollectionProperty
+)
+
 from .utils import log
 from . import database
 
 
+class ChangeGroup(PropertyGroup):
+    """Property group for storing change data."""
+
+    obj: PointerProperty(type=Object)
+    text: StringProperty()
+    icon: StringProperty(default='')
+
+
+class LayerChangesGroup(PropertyGroup):
+    """Property group for storing changes to a layer."""
+
+    layer_name: StringProperty()
+    change_index: IntProperty(default=0)
+    changes: CollectionProperty(type=ChangeGroup)
+
+
 # active observation functions
-def observe_layers() -> None:
+def observe_layers(observer) -> None:
     """Actively observe changes to the layer.
 
         This function will be called periodically by blender and will report
         changes to the active observer.
     """
 
-    observer = database.data.get_active_observer()
     new_count = observer.get_layer_count()
 
     if(observer.last_count < new_count):
@@ -41,6 +67,16 @@ def observe_strokes(observer) -> None:
         This function will be called periodically by blender and will report
         changes to the active observer.
     """
+
+    new_count = observer.get_stroke_count()
+
+    if(observer.last_count < new_count):
+        observer.on_add()
+    elif(observer.last_count > new_count):
+        observer.on_remove()
+    observer.last_count = new_count
+
+    return observer.interval
 
 
 # passive observation functions

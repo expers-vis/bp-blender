@@ -12,7 +12,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import bpy      # type: ignore
+from ..lib import (
+    register_classes,
+    unregister_classes
+)
 
 from .trackers import (
     RECORDER_OT_start_track_active,
@@ -31,16 +34,8 @@ classes = [
 
 
 def register():
-    for cls in classes:
-        print(cls)
-        bpy.utils.register_class(cls)
+    register_classes(classes)
 
 
 def unregister():
-    del_list = classes.copy()
-    while len(del_list) > 0:
-        try:
-            cls = del_list.pop()
-            bpy.utils.unregister_class(cls)
-        except RuntimeError:
-            pass
+    unregister_classes(classes)

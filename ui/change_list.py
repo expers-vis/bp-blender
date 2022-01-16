@@ -12,19 +12,29 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-from bpy.types import (     # type: ignore
-    UIList
-)
+from bpy.types import UIList        # type: ignore
 
 
 class RECORDER_UL_change_list(UIList):
     def draw_item(self, context, layout, data, item, icon,
                   active_data, active_propname, index, flt_flag):
         default_icon = 'OBJECT_DATAMODE'
+        display_icon = item.icon or default_icon
 
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
-            pass
+            if item.obj:
+                layout.prop(
+                    item,
+                    'obj',
+                    text=item.text,
+                    icon=display_icon
+                )
+            else:
+                layout.label(
+                    text=item.text,
+                    icon=display_icon
+                )
 
         elif self.layout_type in {'GRID'}:
             layout.alignment = 'CENTER'
-            layout.label(text='', icon=default_icon)
+            layout.label(text='', icon=display_icon)
