@@ -18,7 +18,7 @@ from ..lib import data
 
 
 class RECORDER_PT_main_panel(bpy.types.Panel):
-    """Main panel class containg Addon GUI."""
+    """Main GUI component containing addon interface."""
 
     bl_idname = "RECORDER_PT_main_panel"
     bl_label = "Action Recorder Panel"

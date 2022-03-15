@@ -20,6 +20,8 @@ from ..lib import GPenObserver
 
 
 class RECORDER_UL_layer_list(UIList):
+    """GUI component, a list containing layers belonging to
+        tracked Grease Pencil object."""
     def draw_item(self, context, layout, data: GPenObserver, item, icon,
                   active_data, active_propname, index, flt_flag):
         default_icon = 'OUTLINER_OB_IMAGE'

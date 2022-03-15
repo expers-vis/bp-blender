@@ -16,6 +16,8 @@ from bpy.types import UIList        # type: ignore
 
 
 class RECORDER_UL_change_list(UIList):
+    """GUI component, a list containing sequence of captured changes."""
+
     def draw_item(self, context, layout, data, item, icon,
                   active_data, active_propname, index, flt_flag):
         default_icon = 'OBJECT_DATAMODE'

@@ -115,6 +115,8 @@ class RECORDER_OT_pause_tracking(Operator):
     bl_description = "Pause active tracking of selected Grease Pencil."
 
     def execute(self, context) -> set:
+        """Execute the operator."""
+
         gpen = data.get_active_observer()
 
         if gpen:
@@ -131,6 +133,8 @@ class RECORDER_OT_resume_tracking(Operator):
     bl_description = "Resume active tracking of selected Grease Pencil."
 
     def execute(self, context) -> set:
+        """Execute the operator."""
+
         gpen = data.get_active_observer()
 
         if gpen:

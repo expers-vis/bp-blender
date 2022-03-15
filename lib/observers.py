@@ -107,12 +107,18 @@ class LayerObserver(ActiveObserver, PropertyGroup):
         return self.layer == layer
 
     def get_layer(self) -> GPencilLayer:
+        """Get tracked layer object."""
+
         return self.layer
 
     def get_stroke_count(self) -> int:
+        """Get count of strokes in tracked layer."""
+
         return self.strokes.__len__()
 
     def on_add(self) -> None:
+        """Method called in response to addition of a new stroke."""
+
         print(get_timestamp() + ": stroke added.")
 
         for stroke in reversed(self.strokes):
@@ -127,8 +133,11 @@ class LayerObserver(ActiveObserver, PropertyGroup):
                 )
 
     def on_remove(self) -> None:
-        # 'stroke not in self.strokes' replacement
+        """Method called in response to deletion of a stroke."""
+
         def is_removed(stroke):
+            """'stroke not in self.strokes' replacement"""
+
             for s in self.strokes:
                 if s == stroke:
                     return False
@@ -154,6 +163,8 @@ class LayerObserver(ActiveObserver, PropertyGroup):
             self.ref_strokes.remove(stroke)
 
     def notify(self) -> None:
+        """Method to notify observer of change in stroke count."""
+
         new_count = self.get_stroke_count()
 
         if(self.last_count < new_count):
@@ -183,6 +194,7 @@ class GPenObserver(ActiveObserver, PropertyGroup):
             self.__add_layer__(layer)
 
         log(f'Observer for { observee } created.')
+        # TODO: log new layers
 
     @property
     def layers(self):
@@ -221,6 +233,8 @@ class GPenObserver(ActiveObserver, PropertyGroup):
 
                 break
 
+        # TODO: implement keyframe advance
+
     def get_gpen(self) -> GreasePencil:
         """Get observed GreasePencil object."""
 
@@ -249,6 +263,8 @@ class GPenObserver(ActiveObserver, PropertyGroup):
             layer_observer.set_active(status)
 
     def on_add(self) -> None:
+        """Method called in response to addition of a new layer."""
+
         log(get_timestamp() + ": layer added.", 'debug')
         print(get_timestamp() + ": layer added.")
 
@@ -259,6 +275,8 @@ class GPenObserver(ActiveObserver, PropertyGroup):
                 self.__add_layer__(layer)
 
     def on_remove(self) -> None:
+        """Method called in response to deletion of a layer."""
+
         log(get_timestamp() + ": layer removed.", 'debug')
         print(get_timestamp() + ": layer removed.")
 
@@ -277,6 +295,8 @@ class GPenObserver(ActiveObserver, PropertyGroup):
         )
 
     def notify(self) -> None:
+        """Method to notify observer of change in layer count."""
+
         log(str(self.gpen) + ' notified of change', 'debug')
         new_count = self.get_layer_count()
 
