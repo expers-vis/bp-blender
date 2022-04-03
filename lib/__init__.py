@@ -13,8 +13,7 @@
 
 
 from bpy.types import (       # type: ignore
-    GreasePencil,
-    GPencilLayer
+    GreasePencil
 )
 from bpy.props import (       # type: ignore
     IntProperty,
@@ -86,7 +85,6 @@ def unregister():
     try:
         del GreasePencil.layer_index
         del GreasePencil.layer_count
-        del GPencilLayer.change_index
-        del GPencilLayer.changes
+        del GreasePencil.layer_records
     except AttributeError:
         pass

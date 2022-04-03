@@ -15,6 +15,7 @@
 import bpy.app.timers as timers             # type: ignore
 from bpy.types import (                 # type: ignore
     PropertyGroup,
+    GPencilFrame,
     GPencilLayer,
     GreasePencil
 )
@@ -25,10 +26,11 @@ from .utils import (
 )
 from .tracking import (
     observe_layers,
-    observe_strokes
+    observe_strokes,
+    LayerChangesGroup
 )
 
-from typing import Callable
+from typing import Callable, Union
 import functools
 
 
@@ -69,47 +71,18 @@ class ActiveObserver():
             log('Function interval cannot be negative or equal to 0.', 'error')
 
 
-# NOTE: Initial limiting factor: only first frame is observed
-class LayerObserver(ActiveObserver, PropertyGroup):
-    """Observer class used to observe changes in GPencilLayer object.
+class FrameObserver(ActiveObserver):
+    """Observer class used to observe changes in GPencilFrame object."""
 
-        This class also doubles as PropertyGroup object used for displaying
-        changes in observed layer in UIList.
-    """
-
-    def __init__(self, observee: GPencilLayer) -> None:
+    def __init__(self, observee: GPencilFrame,
+                 layer_name: str, add_fn: Callable):
         super().__init__(observe_strokes)
 
-        self.id = id(observee)
-        self.name = observee.info
-        self.layer = observee
-        self.frame = observee.frames[0]
+        self.parent_layer = layer_name
+        self.frame = observee
         self.strokes = self.frame.strokes
         self.last_count = self.strokes.__len__()
-
-        # reference list for comparison with actual stroke list
-        self.ref_strokes = list(self.strokes)
-        # function to record new change on parent gpen observer
-        self.add_change: Callable
-
-    @property
-    def changes(self):
-        return self.layer.changes
-
-    def set_add_function(self, func):
-        """Set a function to report a change to."""
-
-        self.add_change = func
-
-    def equals(self, layer):
-        """Returns whether layer is observed by this observer."""
-
-        return self.layer == layer
-
-    def get_layer(self) -> GPencilLayer:
-        """Get tracked layer object."""
-
-        return self.layer
+        self.add_change = add_fn
 
     def get_stroke_count(self) -> int:
         """Get count of strokes in tracked layer."""
@@ -121,57 +94,59 @@ class LayerObserver(ActiveObserver, PropertyGroup):
 
         print(get_timestamp() + ": stroke added.")
 
-        for stroke in reversed(self.strokes):
-            if stroke not in self.ref_strokes:
-                self.ref_strokes.append(stroke)
+        # TODO: reference last stroke
 
-                self.add_change(
-                    self.name,
-                    None,       # TODO: work out referencing
-                    'Stroke added.',
-                    'PLUS',
-                )
+        self.add_change(
+            self.parent_layer,
+            None,       # TODO: work out referencing
+            'Stroke added.',
+            'PLUS',
+        )
 
     def on_remove(self) -> None:
         """Method called in response to deletion of a stroke."""
 
-        def is_removed(stroke):
-            """'stroke not in self.strokes' replacement"""
-
-            for s in self.strokes:
-                if s == stroke:
-                    return False
-
-            return True
-
         print(get_timestamp() + ": stroke removed.")
 
-        to_remove = list()
+        self.add_change(
+            self.parent_layer,
+            None,
+            'Stroke removed.',
+            'X'
+        )
 
-        for stroke in self.ref_strokes:
-            if is_removed(stroke):
-                to_remove.append(stroke)
 
-                self.add_change(
-                    self.name,
-                    None,
-                    'Stroke removed.',
-                    'X'
-                )
+class LayerObserver():
+    """Observer class used to observe changes in GPencilLayer object.
 
-        for stroke in to_remove:
-            self.ref_strokes.remove(stroke)
+        This class also doubles as PropertyGroup object used for displaying
+        changes in observed layer in UIList.
+    """
 
-    def notify(self) -> None:
-        """Method to notify observer of change in stroke count."""
+    def __init__(self, observee: GPencilLayer, add_fn: Callable) -> None:
+        self.id = id(observee)
+        self.layer = observee
+        self.add_change = add_fn
+        self.active_frame = FrameObserver(
+            self.layer.frames[-1],
+            self.layer.info,
+            add_fn
+        )
 
-        new_count = self.get_stroke_count()
+    def set_add_function(self, func: Callable) -> None:
+        """Set a function to report a change to."""
 
-        if(self.last_count < new_count):
-            self.on_add()
-        elif(self.last_count > new_count):
-            self.on_remove()
-        self.last_count = new_count
+        self.add_change = func
+
+    def get_layer(self) -> GPencilLayer:
+        """Get tracked layer object."""
+
+        return self.layer
+
+    def set_active(self, status: bool) -> None:
+        """Propagate status to child observers."""
+
+        self.active_frame.set_active(status)
 
 
 class GPenObserver(ActiveObserver, PropertyGroup):
@@ -200,17 +175,17 @@ class GPenObserver(ActiveObserver, PropertyGroup):
     def layers(self):
         return self.gpen.layers
 
-    def __add_layer__(self, layer):
+    def __add_layer__(self, layer: GPencilLayer) -> None:
         """Add a new layer to track list"""
 
-        layer_observer = LayerObserver(layer)
-        layer_observer.set_add_function(self.__new_record__)
+        layer_observer = LayerObserver(layer, self.__new_record__)
+        # layer_observer.set_add_function()
         self.layer_observers[layer] = layer_observer
 
         item = self.gpen.layer_records.add()
         item.layer_name = layer.info
 
-    def __remove_layer__(self, layer):
+    def __remove_layer__(self, layer: GPencilLayer) -> None:
         """Remove a layer from track list"""
 
         name = layer.info
@@ -221,7 +196,8 @@ class GPenObserver(ActiveObserver, PropertyGroup):
                 self.gpen.layer_records.remove(item)
                 break
 
-    def __new_record__(self, layer_name, obj, text, icon):
+    def __new_record__(self, layer_name: str,
+                       obj: object, text: str, icon: str) -> None:
         """Create a new record for a given layer"""
 
         for item in self.gpen.layer_records:
@@ -245,7 +221,8 @@ class GPenObserver(ActiveObserver, PropertyGroup):
 
         return self.layers.__len__()
 
-    def get_layer_records(self, layer_name):
+    def get_layer_records(self,
+                          layer_name: str) -> Union[LayerChangesGroup, None]:
         """Get layer records for given layer."""
 
         for item in self.gpen.layer_records:

@@ -17,7 +17,7 @@ from ..lib import (
     unregister_classes
 )
 
-from .trackers import (
+from .tracking import (
     RECORDER_OT_start_track_active,
     RECORDER_OT_stop_track_active,
     RECORDER_OT_pause_tracking,
