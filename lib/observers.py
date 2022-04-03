@@ -12,8 +12,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+import bpy                                  # type: ignore
 import bpy.app.timers as timers             # type: ignore
-from bpy.types import (                 # type: ignore
+from bpy.types import (                     # type: ignore
     PropertyGroup,
     GPencilFrame,
     GPencilLayer,
@@ -84,6 +85,18 @@ class FrameObserver(ActiveObserver):
         self.last_count = self.strokes.__len__()
         self.add_change = add_fn
 
+    def get_frame(self) -> GPencilFrame:
+        """Get observed GPencilFrame object."""
+
+        return self.frame
+
+    def set_frame(self, frame: GPencilFrame) -> None:
+        """Set new GPencilFrame object for observation."""
+
+        self.frame = frame
+        self.strokes = self.frame.strokes
+        self.last_count = self.frame.strokes.__len__()
+
     def get_stroke_count(self) -> int:
         """Get count of strokes in tracked layer."""
 
@@ -148,6 +161,13 @@ class LayerObserver():
 
         self.active_frame.set_active(status)
 
+    def advance_frame(self) -> None:
+        """Advance frame for this layer."""
+
+        current_frame = self.active_frame.get_frame()
+        new_frame = self.layer.frames.copy(current_frame)
+        self.active_frame.set_frame(new_frame)
+
 
 class GPenObserver(ActiveObserver, PropertyGroup):
     """Observer class used to observe changes in GreasePencil object.
@@ -209,7 +229,10 @@ class GPenObserver(ActiveObserver, PropertyGroup):
 
                 break
 
-        # TODO: implement keyframe advance
+        for layer in self.layer_observers.values():
+            layer.advance_frame()
+        scene = bpy.context.scene
+        scene.frame_set(scene.frame_current + 1)
 
     def get_gpen(self) -> GreasePencil:
         """Get observed GreasePencil object."""
