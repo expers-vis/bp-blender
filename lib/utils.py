@@ -17,7 +17,7 @@ import logging
 import time
 
 
-logging_enabled = True
+logging_enabled = False
 
 try:
     logging.basicConfig(
@@ -38,7 +38,6 @@ def register_classes(class_list: list):
     """Register blender classes from a list"""
 
     for cls in class_list:
-        print(cls)
         bpy.utils.register_class(cls)
 
 

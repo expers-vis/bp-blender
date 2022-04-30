@@ -87,7 +87,6 @@ def get_active_layer_count(self) -> int:
         to get the number of layers.
     """
 
-    print('getting layer count')
     log('getting layer count')
 
     return len(self.layers)
@@ -99,9 +98,6 @@ def notify_layer_change(self, context):
         This function will become method of the GreasePencil class called
         when number of layers have changed.
     """
-
-    print('notifying ' + str(self))
-    log('notifying ' + str(self), 'debug')
 
     if database.data.is_observed(self):
         database.data.get_observer(self).notify()

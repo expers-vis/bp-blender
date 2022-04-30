@@ -105,8 +105,6 @@ class FrameObserver(ActiveObserver):
     def on_add(self) -> None:
         """Method called in response to addition of a new stroke."""
 
-        print(get_timestamp() + ": stroke added.")
-
         self.add_change(
             self.parent_layer,
             None,       # TODO: work out referencing
@@ -116,8 +114,6 @@ class FrameObserver(ActiveObserver):
 
     def on_remove(self) -> None:
         """Method called in response to deletion of a stroke."""
-
-        print(get_timestamp() + ": stroke removed.")
 
         self.add_change(
             self.parent_layer,
@@ -267,7 +263,6 @@ class GPenObserver(ActiveObserver, PropertyGroup):
         """Method called in response to addition of a new layer."""
 
         log(get_timestamp() + ": layer added.", 'debug')
-        print(get_timestamp() + ": layer added.")
 
         layers = self.gpen.layers
 
@@ -279,7 +274,6 @@ class GPenObserver(ActiveObserver, PropertyGroup):
         """Method called in response to deletion of a layer."""
 
         log(get_timestamp() + ": layer removed.", 'debug')
-        print(get_timestamp() + ": layer removed.")
 
         gpen_layers = self.gpen.layers
         observed_layers = self.layer_observers.keys()

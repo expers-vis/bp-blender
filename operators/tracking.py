@@ -86,7 +86,6 @@ class RECORDER_OT_start_track_active(TrackActiveABC, Operator):
                 )
             else:
                 self.add_tracker(context, gpen)
-                print("Tracking " + str(gpen))
 
         return {'FINISHED'}
 
@@ -102,7 +101,6 @@ class RECORDER_OT_stop_track_active(Track, Operator):
         """Execute the operator."""
 
         self.remove_tracker(context)
-        print("Stopped tracking.")
 
         return {'FINISHED'}
 
