@@ -220,6 +220,7 @@ class GPenObserver(ActiveObserver, PropertyGroup):
         """Create a new record for a given layer"""
 
         for item in self.gpen.layer_records:
+            item.change_index = len(item.changes)
             if item.layer_name == layer_name:
                 change = item.changes.add()
                 change.obj = obj

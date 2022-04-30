@@ -21,7 +21,7 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
     """Main GUI component containing addon interface."""
 
     bl_idname = "RECORDER_PT_main_panel"
-    bl_label = "Action Recorder Panel"
+    bl_label = "Action Recorder"
     bl_category = "Recorder"
     bl_space_type = "VIEW_3D"
     bl_region_type = 'UI'
