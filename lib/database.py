@@ -17,6 +17,52 @@ from bpy.types import GreasePencil     # type: ignore
 from .observers import GPenObserver
 
 from typing import Union
+from os import (
+    mkdir,
+    environ,
+    path
+)
+
+
+class RenderSettings():
+    """Class for storing render settings."""
+
+    def __init__(self) -> None:
+        self._render_path = path.join(environ['USERPROFILE'], 'Videos')
+        self.use_viewport = True
+        self.framerate = 1
+        self.create_dir = ''
+
+    @property
+    def render_path(self):
+        if self.create_dir:
+            mkdir(path.join(self._render_path, self.create_dir))
+
+        self.create_dir = ''
+        return self._render_path
+
+    @render_path.setter
+    def render_path(self, value):
+        self._render_path = value
+
+    def valid(self) -> bool:
+        """Check if the render settings are valid."""
+
+        if path.isdir(self._render_path):
+            valid_path = True
+        else:
+            # check if last directory can be created
+            dirs = self._render_path.rsplit(path.sep, 1)
+            if len(dirs) == 2:
+                self._render_path = dirs[0]
+                self.create_dir = dirs[1]
+                valid_path = True
+            else:
+                valid_path = False
+
+        valid_framerate = self.framerate > 0
+
+        return valid_path and valid_framerate
 
 
 # TODO: implement data storage
@@ -26,6 +72,7 @@ class ObserverDatabase():
     def __init__(self) -> None:
         self.records: list[GPenObserver] = list()       # list of tracked gpens
         self.active_observer: Union[GPenObserver, None] = None
+        self.render_settings = RenderSettings()
         self.load_data()
 
     def __del__(self):

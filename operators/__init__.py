@@ -17,6 +17,11 @@ from ..lib import (
     unregister_classes
 )
 
+from .io import (
+    RECORDER_OT_render,
+    RECORDER_OT_render_settings
+)
+
 from .tracking import (
     RECORDER_OT_start_track_active,
     RECORDER_OT_stop_track_active,
@@ -26,6 +31,8 @@ from .tracking import (
 
 
 classes = [
+    RECORDER_OT_render,
+    RECORDER_OT_render_settings,
     RECORDER_OT_start_track_active,
     RECORDER_OT_stop_track_active,
     RECORDER_OT_pause_tracking,

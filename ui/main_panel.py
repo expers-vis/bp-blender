@@ -74,3 +74,9 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
                 layer_records,
                 "change_index"
             )
+
+            layout.separator()
+            layout.label(text='Export')
+            row = layout.row()
+            row.operator('action_recorder.render')
+            row.operator('action_recorder.render_settings', icon='SETTINGS')

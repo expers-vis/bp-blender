@@ -107,8 +107,6 @@ class FrameObserver(ActiveObserver):
 
         print(get_timestamp() + ": stroke added.")
 
-        # TODO: reference last stroke
-
         self.add_change(
             self.parent_layer,
             None,       # TODO: work out referencing
@@ -183,6 +181,7 @@ class GPenObserver(ActiveObserver, PropertyGroup):
         self.name = observee.name
         self.gpen = observee
         self.last_count = self.layers.__len__()
+        self.frame_count = 0
 
         self.layer_observers = dict()
         for layer in observee.layers:
@@ -233,6 +232,7 @@ class GPenObserver(ActiveObserver, PropertyGroup):
             layer.advance_frame()
         scene = bpy.context.scene
         scene.frame_set(scene.frame_current + 1)
+        self.frame_count += 1
 
     def get_gpen(self) -> GreasePencil:
         """Get observed GreasePencil object."""
