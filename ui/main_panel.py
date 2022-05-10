@@ -32,7 +32,7 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
         if not data.is_active():
             # no gpen selected for observation
 
-            layout.label(text='Control trackers')
+            layout.label(text='Please select Grease Pencil object to start tracking.')
             layout.operator('action_recorder.start_track_active')
         else:
             # gpen has been selected
@@ -45,7 +45,7 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
                 selected_layer.info
             )
 
-            layout.label(text=f'Tracking { gpen_observer.name }.')
+            layout.label(text=f'Tracking: { gpen_observer.name }.')
             if gpen_observer.is_active():
                 layout.operator('action_recorder.pause_tracking')
             else:

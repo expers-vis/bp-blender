@@ -21,11 +21,10 @@ verbose = True
 bl_info = {
     "name": "Action Recorder",
     "author": "Martin Hiner (xhiner00)",
-    "description": "Record, browse and edit your actions.",
+    "description": "Record your creative process and export it as a showcase animation.",       # noqa
     "blender": (3, 0, 0),
-    "version": (0, 0, 1),
+    "version": (1, 0, 0),
     "location": "3D View > UI > Recorder",
-    "warning": "WIP",
     "category": "User"
 }
 
