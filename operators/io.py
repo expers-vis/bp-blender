@@ -102,11 +102,6 @@ class RECORDER_OT_render_settings(Operator):
         description='Path to export rendered images to.',
         default=path.join(environ['USERPROFILE'], 'Videos')
     )
-    framerate: IntProperty(
-        name='Framerate',
-        description='Framerate for rendered animation.',
-        default=1
-    )
     viewport: BoolProperty(
         name='Use viewport',
         description=('Set whether animation should be '
@@ -123,7 +118,6 @@ class RECORDER_OT_render_settings(Operator):
         """Execute the operator."""
 
         data.render_settings.render_path = self.path
-        data.render_settings.framerate = self.framerate
         data.render_settings.use_viewport = self.viewport
 
         return {'INTERFACE'}
