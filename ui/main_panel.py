@@ -16,6 +16,8 @@ import bpy      # type: ignore
 
 from ..lib import data
 
+from textwrap import TextWrapper
+
 
 class RECORDER_PT_main_panel(bpy.types.Panel):
     """Main GUI component containing addon interface."""
@@ -26,13 +28,37 @@ class RECORDER_PT_main_panel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = 'UI'
 
+    _wrapper = TextWrapper()
+
+    def __get_width__(self) -> int:
+        """Get width of this panel."""
+
+        areas = bpy.data.screens['Layout'].areas
+
+        # get the area of this panel
+        for area in areas:
+            if area.type == self.bl_space_type:
+                break
+
+        for region in area.regions:
+            if region.type == self.bl_region_type:
+                break
+
+        return region.width
+
     def draw(self, context):
         layout = self.layout
 
         if not data.is_active():
             # no gpen selected for observation
 
-            layout.label(text='Please select Grease Pencil object to start tracking.')
+            self._wrapper.width = self.__get_width__() // 7
+            wrapped_list = self._wrapper.wrap(
+                'Please select Grease Pencil object to start tracking.'
+            )
+
+            for line in wrapped_list:
+                layout.label(text=line)
             layout.operator('action_recorder.start_track_active')
         else:
             # gpen has been selected

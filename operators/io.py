@@ -14,7 +14,6 @@
 from bpy.ops import render as render_call       # type: ignore
 from bpy.props import (                         # type: ignore
     BoolProperty,
-    IntProperty,
     StringProperty
 )
 from bpy.types import (                         # type: ignore

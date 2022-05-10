@@ -19,17 +19,18 @@ import time
 
 logging_enabled = False
 
-try:
-    logging.basicConfig(
-        filename='blender_recorder.log',
-        level=logging.DEBUG
-    )
-    location = logging.getLoggerClass().root.handlers[0].baseFilename
-    print("Action Recorder: logging enabled")
-    print(f"Log file: {location}")
-except PermissionError:
-    logging_enabled = False
-    print('Action Recorder: logging disabled')
+if logging_enabled:
+    try:
+        logging.basicConfig(
+            filename='blender_recorder.log',
+            level=logging.DEBUG
+        )
+        location = logging.getLoggerClass().root.handlers[0].baseFilename
+        print("Action Recorder: logging enabled")
+        print(f"Log file: {location}")
+    except PermissionError:
+        logging_enabled = False
+        print('Action Recorder: logging disabled')
 
 levels = ('critical', 'error', 'warning', 'info', 'debug')
 
