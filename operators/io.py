@@ -64,23 +64,16 @@ class RECORDER_OT_render(Operator):
             )
             return {'CANCELLED'}
 
-        last_frame = context.scene.frame_current
         context.scene.frame_end = data.get_active_observer().frame_count
-        fill_len = len(str(data.get_active_observer().frame_count))
         base_dir = data.render_settings.render_path
 
-        for idx in range(0, data.get_active_observer().frame_count + 1):
-            # redundant variable to save line length
-            img_name = f'{path.sep}capture{str(idx).zfill(fill_len)}'
-            context.scene.render.filepath = base_dir + img_name
-            context.scene.frame_set(idx)
+        # render animationimages
+        context.scene.render.filepath = base_dir + path.sep + 'capture'
+        render_call.render(
+            animation=True,
+            use_viewport=data.render_settings.use_viewport
+        )
 
-            render_call.render(
-                write_still=True,
-                use_viewport=data.render_settings.use_viewport
-            )
-
-        context.scene.frame_set(last_frame)
         self.report(
             {'INFO'},
             'Render has finished.'
