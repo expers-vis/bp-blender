@@ -43,7 +43,7 @@ class LayerChangesGroup(PropertyGroup):
 
 
 # active observation functions
-def observe_layers(observer) -> None:
+def observe_layers(observer) -> float:
     """Actively observe changes to the layer.
 
         This function will be called periodically by blender and will report
@@ -61,7 +61,7 @@ def observe_layers(observer) -> None:
     return observer.interval
 
 
-def observe_strokes(observer) -> None:
+def observe_strokes(observer) -> float:
     """Actively observe changes to the strokes inside the layer.
 
         This function will be called periodically by blender and will report
