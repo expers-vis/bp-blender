@@ -44,7 +44,7 @@ class ActiveObserver():
 
     def __init__(self, observing_func: Callable) -> None:
         self.active = False
-        self.interval = 1.0
+        self.interval = 0.5
         self.func = functools.partial(observing_func, self)
 
     def is_active(self) -> bool:
