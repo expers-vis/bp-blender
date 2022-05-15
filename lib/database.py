@@ -30,7 +30,7 @@ class RenderSettings():
     def __init__(self) -> None:
         self._render_path = path.join(environ['USERPROFILE'], 'Videos')
         self.use_viewport = True
-        self.framerate = 1
+        self.framerate = 24
         self.create_dir = ''
 
     @property

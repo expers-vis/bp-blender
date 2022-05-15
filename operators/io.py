@@ -14,6 +14,7 @@
 from bpy.ops import render as render_call       # type: ignore
 from bpy.props import (                         # type: ignore
     BoolProperty,
+    IntProperty,
     StringProperty
 )
 from bpy.types import (                         # type: ignore
@@ -26,6 +27,7 @@ from os import (
     environ,
     path
 )
+from pathlib import Path
 
 
 class RECORDER_OT_render(Operator):
@@ -65,14 +67,40 @@ class RECORDER_OT_render(Operator):
             return {'CANCELLED'}
 
         context.scene.frame_end = data.get_active_observer().frame_count
-        base_dir = data.render_settings.render_path
+        base_dir_path = data.render_settings.render_path
+        render_dir_path = f'{base_dir_path}{path.sep}render'
 
-        # render animationimages
-        context.scene.render.filepath = base_dir + path.sep + 'capture'
+        # render animation images
+        context.scene.render.filepath = render_dir_path + path.sep + 'capture'
         render_call.render(
             animation=True,
             use_viewport=data.render_settings.use_viewport
         )
+
+        # compile images into animation
+        render_dir = Path(render_dir_path)
+        images = sorted(list(render_dir.glob('*.png')))
+        context.scene.sequence_editor_clear()
+        editor = context.scene.sequence_editor_create()
+        sequence = editor.sequences
+
+        first = images.pop(0)
+        image_strip = sequence.new_image(
+            name=first.name,
+            filepath=str(first),
+            frame_start=1,
+            channel=1
+        )
+
+        while images:
+            image_strip.elements.append(images.pop(0).name)
+
+        image_strip.frame_final_duration = data.get_active_observer().frame_count
+        image_strip.update()
+        context.scene.render.filepath = base_dir_path + path.sep + 'animation'
+        context.scene.render.image_settings.file_format = 'AVI_JPEG'
+        context.scene.render.fps = data.render_settings.framerate
+        render_call.render(animation=True)
 
         self.report(
             {'INFO'},
@@ -94,6 +122,11 @@ class RECORDER_OT_render_settings(Operator):
         description='Path to export rendered images to.',
         default=path.join(environ['USERPROFILE'], 'Videos')
     )
+    fps: IntProperty(
+        name='Framerate',
+        description='number of frames per second in animation.',
+        default=24
+    )
     viewport: BoolProperty(
         name='Use viewport',
         description=('Set whether animation should be '
@@ -110,6 +143,7 @@ class RECORDER_OT_render_settings(Operator):
         """Execute the operator."""
 
         data.render_settings.render_path = self.path
+        data.render_settings.framerate = self.fps
         data.render_settings.use_viewport = self.viewport
 
         return {'INTERFACE'}
