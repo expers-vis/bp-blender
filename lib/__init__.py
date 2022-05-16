@@ -32,8 +32,6 @@ from .observers import (
     LayerObserver
 )
 from .tracking import (
-    get_active_layer_count,
-    notify_layer_change,
     ChangeGroup,
     LayerChangesGroup
 )
