@@ -67,12 +67,6 @@ def register():
         default=0,
         options={'HIDDEN'}
     )
-    GreasePencil.layer_count = IntProperty(
-        name='layer_count',
-        get=get_active_layer_count,
-        update=notify_layer_change,
-        options={'HIDDEN'}
-    )
     GreasePencil.layer_records = CollectionProperty(
         type=LayerChangesGroup,
         options={'HIDDEN'}
@@ -84,7 +78,6 @@ def unregister():
 
     try:
         del GreasePencil.layer_index
-        del GreasePencil.layer_count
         del GreasePencil.layer_records
     except AttributeError:
         pass
