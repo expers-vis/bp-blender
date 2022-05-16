@@ -67,6 +67,14 @@ class RECORDER_OT_render(Operator):
             return {'CANCELLED'}
 
         frame_count = data.get_active_observer().frame_count
+
+        if frame_count == 0:
+            self.report(
+                {'ERROR'},
+                'There are no frames to render.'
+            )
+            return {'CANCELLED'}
+
         context.scene.frame_end = frame_count
         base_dir_path = data.render_settings.render_path
         render_dir_path = f'{base_dir_path}{path.sep}render'
