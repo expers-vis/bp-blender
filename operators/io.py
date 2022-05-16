@@ -66,7 +66,8 @@ class RECORDER_OT_render(Operator):
             )
             return {'CANCELLED'}
 
-        context.scene.frame_end = data.get_active_observer().frame_count
+        frame_count = data.get_active_observer().frame_count
+        context.scene.frame_end = frame_count
         base_dir_path = data.render_settings.render_path
         render_dir_path = f'{base_dir_path}{path.sep}render'
 
@@ -95,7 +96,7 @@ class RECORDER_OT_render(Operator):
         while images:
             image_strip.elements.append(images.pop(0).name)
 
-        image_strip.frame_final_duration = data.get_active_observer().frame_count
+        image_strip.frame_final_duration = frame_count
         image_strip.update()
         context.scene.render.filepath = base_dir_path + path.sep + 'animation'
         context.scene.render.image_settings.file_format = 'AVI_JPEG'
