@@ -12,14 +12,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-import bpy      # type: ignore
+import bpy                      # type: ignore
+from bpy.types import Panel     # type: ignore
 
 from ..lib import data
 
 from textwrap import TextWrapper
 
 
-class RECORDER_PT_main_panel(bpy.types.Panel):
+class RECORDER_PT_main_panel(Panel):
     """Main GUI component containing addon interface."""
 
     bl_idname = "RECORDER_PT_main_panel"
