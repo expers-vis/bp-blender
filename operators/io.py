@@ -133,7 +133,7 @@ class RECORDER_OT_render_settings(Operator):
     )
     fps: IntProperty(
         name='Framerate',
-        description='number of frames per second in animation.',
+        description='Number of frames per second in animation.',
         default=24
     )
     viewport: BoolProperty(
